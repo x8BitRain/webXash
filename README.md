@@ -92,11 +92,13 @@ git clone --recurse-submodules https://github.com/x8BitRain/webXash.git
 cd webXash
 ```
 
-Build and extract the wasm files from webxash3d-fwgs (this takes a while).
+~~Build and extract the wasm files from webxash3d-fwgs (this takes a while).~~~
 
-```bash
-./build-xash.sh
-```
+~~./build-xash.sh~~
+
+This step seems to be broken so you will need build and extract the WASM binaries following the steps from this repo: https://github.com/yohimik/webxash3d-fwgs 
+and this script https://github.com/x8BitRain/webXash/blob/main/build-xash.sh#L36, HL binaries go into `public/hl` and CS bins go in `public/cs`. If you know how to get this script running without corrupting the WASM binaries please submit a PR!
+
 
 Start or build the frontend (I use bun here, but npm also works).
 
