@@ -17,7 +17,7 @@
 <script setup lang="ts">
   import { GAME_SETTINGS, useXashStore } from '/@/stores/store';
   import { storeToRefs } from 'pinia';
-  import { Enumify } from '/@/types.ts';
+  import { type Enumify } from '/@/types.ts';
   import { onMounted } from 'vue';
 
   const store = useXashStore();
