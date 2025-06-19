@@ -12,10 +12,10 @@ node_modules
 dist
 dist-ssr
 *.local
-public/*
-public/**
-public/*/**
-public/valve.zip
+public/*/*.wasm
+public/*/*.so
+public/*/menu
+public/*/filesystem_stdio
 
 # Editor directories and files
 .vscode/*
