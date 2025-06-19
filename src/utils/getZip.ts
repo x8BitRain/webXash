@@ -19,7 +19,6 @@ const getZip = (
       const arrayBuffer = req.response;
       resolve(arrayBuffer);
     };
-    console.log(zipPath + '/' + zipName);
 
     req.onerror = () => reject();
     req.open('GET', zipPath + zipName);

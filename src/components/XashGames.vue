@@ -6,7 +6,7 @@
         :key="game.name"
         class="menu-item"
         :class="{ 'menu-item--selected': selectedGame.name === game.name }"
-        @click="selectedGame = game"
+        @click="onSelectGame(game)"
       >
         {{ game.name }}
       </p>
@@ -17,10 +17,25 @@
 <script setup lang="ts">
   import { GAME_SETTINGS, useXashStore } from '/@/stores/store';
   import { storeToRefs } from 'pinia';
+  import { Enumify } from '/@/types.ts';
+  import { onMounted } from 'vue';
 
   const store = useXashStore();
 
   const { selectedGame } = storeToRefs(store);
+
+  // Methods
+
+  const onSelectGame = (game: Enumify<typeof GAME_SETTINGS>): void => {
+    window.scriptDir = game.publicDir;
+    selectedGame.value = game;
+  };
+
+  // Hooks
+
+  onMounted(() => {
+    window.scriptDir = selectedGame.value.publicDir;
+  });
 </script>
 
 <style scoped lang="scss"></style>

@@ -10,6 +10,7 @@ build
 build/*/**
 node_modules
 dist
+dist/.DS_Store
 dist-ssr
 *.local
 *.tsbuildinfo

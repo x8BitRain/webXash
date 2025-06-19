@@ -7,7 +7,6 @@ import { type Enumify } from '/@/types.ts';
 // Types
 
 interface WasmInit {
-  setScriptDirectory: (dir: string) => void;
   startWithFiles: (
     files: FilesWithPath[],
     args: string[],
@@ -95,11 +94,10 @@ export const useXashStore = defineStore('xash', () => {
   };
 
   const startXashZip = async (zip: ArrayBuffer) => {
-    const { start, setScriptDirectory } = (await import(
+    const { start } = (await import(
       // @ts-ignore -- unresolved dir
       '/@/utils/wasmInit'
     )) as WasmInit;
-    setScriptDirectory(selectedGame.value.publicDir);
     const args = getLaunchArgs();
     start(zip, args, increaseLoadedAmount);
   };
@@ -107,11 +105,10 @@ export const useXashStore = defineStore('xash', () => {
   const startXashFiles = async (files: FilesWithPath[]) => {
     onStartLoading();
     maxLoadingAmount.value = files.length;
-    const { startWithFiles, setScriptDirectory } = (await import(
+    const { startWithFiles } = (await import(
       // @ts-ignore -- unresolved dir
       '/@/utils/wasmInit'
     )) as WasmInit;
-    setScriptDirectory(selectedGame.value.publicDir);
     const args = getLaunchArgs();
     startWithFiles(files, args, increaseLoadedAmount);
   };

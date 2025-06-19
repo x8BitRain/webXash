@@ -75,7 +75,7 @@ if (typeof __filename != 'undefined') {
 }
 
 // `/` should be present at the end if `scriptDirectory` is not empty
-var scriptDirectory = 'cs/';
+var scriptDirectory = window.scriptDir;
 
 function locateFile(path) {
   if (Module['locateFile']) {
@@ -31814,8 +31814,4 @@ export async function startWithFiles(data, args = arguments_, cb) {
 
   preInit();
   run();
-}
-
-export function setScriptDirectory(dir) {
-  scriptDirectory = dir;
 }

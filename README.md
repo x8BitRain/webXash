@@ -49,7 +49,6 @@ Note: zip contents should be like this:
 
 The click `open zip` to select this zip, if done correctly the game will launch as soon as you've selected the zip.
 
-
 ## Building/developing
 Clone the repo:
 
