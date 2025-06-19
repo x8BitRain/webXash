@@ -48,3 +48,26 @@ Note: zip contents should be like this:
 ```
 
 The click `open zip` to select this zip, if done correctly the game will launch as soon as you've selected the zip.
+
+
+## Building/developing
+Clone the repo:
+
+```bash
+git clone --recurse-submodules https://github.com/x8BitRain/webXash.git
+cd webXash
+```
+
+Build and extract the wasm files from webxash3d-fwgs (this takes a while).
+
+```bash
+./build-xash.sh
+```
+
+Start or build the frontend (I use bun here, but npm also works).
+
+```bash
+bun install
+bun dev
+bun build
+```

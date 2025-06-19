@@ -12,10 +12,16 @@ node_modules
 dist
 dist-ssr
 *.local
+
+# Build files
 public/*/*.wasm
 public/*/*.so
 public/*/menu
 public/*/filesystem_stdio
+
+# misc
+vite.config.d.ts
+vite.config.js
 
 # Editor directories and files
 .vscode/*

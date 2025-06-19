@@ -2,15 +2,18 @@
   "name": "webxash",
   "private": true,
   "version": "0.0.0",
+  "homepage": "https://x8bitrain.github.io/webXash",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc -b && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "deploy": "gh-pages -t true -d dist"
   },
   "dependencies": {
     "browser-fs-access": "0.37.0",
     "fflate": "0.8.2",
+    "gh-pages": "^6.3.0",
     "pinia": "3.0.3",
     "vue": "3.5.13"
   },
@@ -18,7 +21,7 @@
     "@vitejs/plugin-vue": "5.2.3",
     "@vue/tsconfig": "0.7.0",
     "typescript": "5.8.3",
-    "vite": "npm:rolldown-vite@latest",
+    "vite": "latest",
     "vue-tsc": "2.2.8",
     "sass-embedded": "1.81.0",
     "@eslint/js": "9.20.0",
