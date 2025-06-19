@@ -92,7 +92,7 @@ git clone --recurse-submodules https://github.com/x8BitRain/webXash.git
 cd webXash
 ```
 
-~~Build and extract the wasm files from webxash3d-fwgs (this takes a while).~~~
+~~Build and extract the wasm files from webxash3d-fwgs (this takes a while).~~
 
 ~~./build-xash.sh~~
 
