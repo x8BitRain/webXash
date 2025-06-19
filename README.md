@@ -6,7 +6,7 @@ Play Half-Life 1 and Counter-Strike 1.6 in your browser with [Xash3d-FWGS-webass
 
 ![image](https://github.com/user-attachments/assets/46d9265a-8e1a-4f80-8419-f7b04aa7925b)
 
-Please read the FAQs before you start!
+Please read the [FAQs](https://github.com/x8BitRain/webXash/blob/main/README.md#faqs) before you start!
 
 ## How to use
 
