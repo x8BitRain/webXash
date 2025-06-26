@@ -32,7 +32,7 @@ const getFiles = async (
   return [...resolvedDirs.flat(), ...files];
 };
 
-export default async (options: Options): Promise<FilesWithPath[]> => {
+export default async (options: Options): Promise<FilesWithPath[] | undefined> => {
   if (!('showDirectoryPicker' in window) || !window.showDirectoryPicker) {
     alert('Your browser doesn\'t support the Filesystem Access API. You will have to make ZIP file out of your game directory, please click on the instructions link in the sidebar menu for a guide.');
     return;

@@ -15,7 +15,9 @@
 
   const openFolder = async () => {
     const files = await directoryOpen({ recursive: true });
-    await startXashFiles(files);
+    if (files) {
+      await startXashFiles(files);
+    }
   };
 </script>
 
