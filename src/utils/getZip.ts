@@ -5,6 +5,7 @@ const getZip = (
 ): Promise<ArrayBuffer> => {
   return new Promise(function (resolve, reject) {
     const req = new XMLHttpRequest();
+    const path = './' + zipPath + zipName;
     req.responseType = 'arraybuffer';
 
     // Run callback on progress events
@@ -21,7 +22,7 @@ const getZip = (
     };
 
     req.onerror = () => reject();
-    req.open('GET', zipPath + zipName);
+    req.open('GET', path);
     req.send();
   });
 };

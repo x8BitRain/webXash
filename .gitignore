@@ -20,6 +20,9 @@ public/*/*.wasm
 public/*/*.so
 public/*/menu
 public/*/filesystem_stdio
+public/cs16-client
+public/hlsdk-portable
+public/xash3d-fwgs
 
 # misc
 vite.config.d.ts

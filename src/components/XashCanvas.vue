@@ -1,6 +1,7 @@
 <template>
   <div v-if="loading" class="loading"></div>
   <canvas
+    ref="xashCanvasElement"
     id="canvas"
     class="emscripten"
     oncontextmenu="event.preventDefault()"
@@ -10,9 +11,22 @@
 <script setup lang="ts">
   import { storeToRefs } from 'pinia';
   import { useXashStore } from '/@/stores/store.ts';
+  import { onMounted, ref } from 'vue';
+
+  // Dependencies
 
   const store = useXashStore();
-  const { loading } = storeToRefs(store);
+  const { loading, xashCanvas } = storeToRefs(store);
+
+  // Data
+
+  const xashCanvasElement = ref<HTMLCanvasElement>();
+
+  // Hooks
+
+  onMounted(() => {
+    xashCanvas.value = xashCanvasElement.value
+  })
 </script>
 
 <style scoped lang="scss">
