@@ -17,6 +17,7 @@
     "gh-pages": "^6.3.0",
     "hlsdk-portable": "^0.0.2",
     "pinia": "3.0.3",
+    "pinia-plugin-persistedstate": "^4.4.1",
     "vue": "3.5.13",
     "xash3d-fwgs": "1.0.1"
   },

@@ -27,4 +27,5 @@ const getZip = (
   });
 };
 
-export default getZip;
+
+export { getZip };

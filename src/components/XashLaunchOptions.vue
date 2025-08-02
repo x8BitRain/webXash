@@ -11,6 +11,15 @@
           />
           Fullscreen
         </label>
+        <label for="cheats">
+          <input
+            id="cheats"
+            v-model="enableCheats"
+            name="cheats"
+            type="checkbox"
+          />
+          sv_cheats 1
+        </label>
         <label for="console">
           <input
             id="console"
@@ -31,7 +40,7 @@
   import { storeToRefs } from 'pinia';
 
   const store = useXashStore();
-  const { launchOptions, fullScreen, enableConsole } = storeToRefs(store);
+  const { launchOptions, fullScreen, enableConsole, enableCheats } = storeToRefs(store);
 </script>
 
 <style scoped lang="scss">

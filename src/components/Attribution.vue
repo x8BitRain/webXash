@@ -1,6 +1,6 @@
 <template>
   <div class="box attribution-box">
-    <a href="https://github.com/x8BitRain/webXash/">Instructions</a>
+    <a href="https://github.com/x8BitRain/webXash/?tab=readme-ov-file#how-to-use">Instructions</a>
     <a href="https://github.com/x8BitRain/webXash/">GitHub</a>
     <a href="https://github.com/yohimik/webxash3d-fwgs">Xash3D</a>
   </div>
