@@ -1,0 +1,59 @@
+{
+  "name": "xash3d-fwgs",
+  "version": "1.0.1+commit.eeca965",
+  "description": "Xash3D-FWGS emscripten port",
+  "homepage": "https://github.com/yohimik/webxash3d-fwgs",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build:wasm": "docker build --progress=plain -t xash3d-builder . && docker run --rm -v \"$(pwd)/dist:/out\" xash3d-builder",
+    "build:ts": "node --loader ts-node/esm scripts/patch-emscripten-js.mts && tsc -p tsconfig.build.json",
+    "build": "npm run build:wasm && npm run build:ts"
+  },
+  "files": [
+    "dist/**/*"
+  ],
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./raw.js": "./dist/raw.js",
+    "./filesystem_stdio.wasm": "./dist/filesystem_stdio.wasm",
+    "./libref_gles3compat.wasm": "./dist/libref_gles3compat.wasm",
+    "./libref_soft.wasm": "./dist/libref_soft.wasm",
+    "./xash.wasm": "./dist/xash.wasm",
+    "./cl_dll/menu_emscripten_wasm32.wasm": "./dist/cl_dll/menu_emscripten_wasm32.wasm"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yohimik/webxash3d-fwgs.git"
+  },
+  "keywords": [
+    "xash3d",
+    "xash3d-fwgs",
+    "goldsrc",
+    "half-life",
+    "counter-strike",
+    "engine",
+    "game-engine",
+    "wasm",
+    "emscripten",
+    "webassembly",
+    "typescript",
+    "port",
+    "engine-port",
+    "browser-game",
+    "modding",
+    "fps-engine",
+    "retro-gaming",
+    "open-source-game-engine"
+  ],
+  "author": "yohimik",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^22.15.34",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "name": "cs16-client",
+  "version": "0.0.2+commit.6a9023c",
+  "description": "cs16-client emscripten port",
+  "homepage": "https://github.com/yohimik/webxash3d-fwgs",
+  "scripts": {
+    "build:wasm": "docker build --progress=plain -t cs-builder . && docker run --rm -v \"$(pwd)/dist:/out\" cs-builder",
+    "build": "npm run build:wasm"
+  },
+  "exports": {
+    "./cl_dll/menu_emscripten_wasm32.wasm": "./dist/cl_dll/menu_emscripten_wasm32.wasm",
+    "./cl_dll/client_emscripten_wasm32.wasm": "./dist/cl_dll/client_emscripten_wasm32.wasm",
+    "./dlls/cs_emscripten_wasm32.so": "./dist/dlls/cs_emscripten_wasm32.so"
+  },
+  "files": [
+    "dist/**/*"
+  ],
+  "keywords": [
+    "cs16-client",
+    "counter-strike",
+    "cs1.6",
+    "xash3d",
+    "game-sdk",
+    "sdk",
+    "xash3d-fwgs",
+    "goldsrc",
+    "half-life",
+    "fps",
+    "webassembly",
+    "wasm",
+    "emscripten",
+    "browser-game",
+    "multiplayer",
+    "game-client",
+    "retro-gaming",
+    "open-source-game",
+    "portable-game-client",
+    "web-port",
+    "modding"
+  ],
+  "author": "yohimik",
+  "license": "MIT"
+}
