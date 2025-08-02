@@ -11,7 +11,7 @@
         "hlsdk-portable": "^0.0.2",
         "pinia": "3.0.3",
         "vue": "3.5.13",
-        "xash3d-fwgs": "^0.0.4",
+        "xash3d-fwgs": "1.0.1",
       },
       "devDependencies": {
         "@eslint/js": "9.20.0",
@@ -615,7 +615,7 @@
 
     "word-wrap": ["word-wrap@1.2.5", "", {}, "sha512-BN22B5eaMMI9UMtjrGd5g5eCYPpCPDUy0FJXbYsaT5zYxjFOckS53SQDE3pWkVoWpHXVb3BrYcEN4Twa55B5cA=="],
 
-    "xash3d-fwgs": ["xash3d-fwgs@0.0.4", "", {}, "sha512-oS3XnW3dBmoDIR7wNrvWY9Wj+nrRpczVisOU6qQ0NFWA8SwQlDgGemWzbCneZnUxkE9smFb/WK0Qv65wsfqsBw=="],
+    "xash3d-fwgs": ["xash3d-fwgs@1.0.1", "", {}, "sha512-+SWWZaUt5FSk3WIWToTCn79gFc3Hg30OTALORKq4ocVPR4miBaJG3XX4jFKWPhZl4a6PBjge5QyV6sfrM8l98w=="],
 
     "xml-name-validator": ["xml-name-validator@4.0.0", "", {}, "sha512-ICP2e+jsHvAj2E2lIHxa5tjXRlKDJo4IdvPvCXbXQGdzSfmSpNVyIKMvoZHjDY9DP0zV17iI85o90vRFXNccRw=="],
 

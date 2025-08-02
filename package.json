@@ -18,7 +18,7 @@
     "hlsdk-portable": "^0.0.2",
     "pinia": "3.0.3",
     "vue": "3.5.13",
-    "xash3d-fwgs": "^0.0.4"
+    "xash3d-fwgs": "1.0.1"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "5.2.3",

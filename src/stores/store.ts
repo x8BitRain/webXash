@@ -5,18 +5,36 @@ import { type Enumify } from '/@/types.ts';
 import { Xash3D } from 'xash3d-fwgs';
 import { unzipSync } from 'fflate';
 import type { FilesWithPath } from '/@/utils/directoryOpen.ts';
-// Xash Imports
-import filesystemURL from 'xash3d-fwgs/filesystem_stdio.wasm?url';
-import xashURL from 'xash3d-fwgs/xash.wasm?url';
-import menuURL from 'xash3d-fwgs/cl_dll/menu_emscripten_wasm32.wasm?url';
-import HLClientURL from 'hlsdk-portable/cl_dll/client_emscripten_wasm32.wasm?url';
-import HLServerURL from 'hlsdk-portable/dlls/hl_emscripten_wasm32.so?url';
-import gles3URL from 'xash3d-fwgs/libref_gles3compat.wasm?url';
-import CSMenuURL from 'cs16-client/cl_dll/menu_emscripten_wasm32.wasm?url';
-import CSClientURL from 'cs16-client/cl_dll/client_emscripten_wasm32.wasm?url';
-import CSServerURL from 'cs16-client/dlls/cs_emscripten_wasm32.so?url';
 
-// Data
+// Xash Imports
+// @ts-ignore -- vite url imports
+import filesystemURL from 'xash3d-fwgs/filesystem_stdio.wasm?url';
+// @ts-ignore -- vite url imports
+import xashURL from 'xash3d-fwgs/xash.wasm?url';
+// @ts-ignore -- vite url imports
+import menuURL from 'xash3d-fwgs/cl_dll/menu_emscripten_wasm32.wasm?url';
+// @ts-ignore -- vite url imports
+import HLClientURL from 'hlsdk-portable/cl_dll/client_emscripten_wasm32.wasm?url';
+// @ts-ignore -- vite url imports
+import HLServerURL from 'hlsdk-portable/dlls/hl_emscripten_wasm32.so?url';
+// @ts-ignore -- vite url imports
+import gles3URL from 'xash3d-fwgs/libref_gles3compat.wasm?url';
+// @ts-ignore -- vite url imports
+import CSMenuURL from 'cs16-client/cl_dll/menu_emscripten_wasm32.wasm?url';
+// @ts-ignore -- vite url imports
+import CSClientURL from 'cs16-client/cl_dll/client_emscripten_wasm32.wasm?url';
+// @ts-ignore -- vite url imports
+import CSServerURL from 'cs16-client/dlls/cs_emscripten_wasm32.so?url';
+import setCanvasLoading from '/@/utils/setCanvasLoading.ts';
+import {
+  type ConsoleCallback,
+  onConsoleMessage,
+  SHUTDOWN_MESSAGE,
+} from '/@/utils/console-callbacks.ts';
+
+// Constants
+
+const XASH_BASE_DIR = '/rodir/';
 
 const XASH_LIBS = {
   filesystem: filesystemURL,
@@ -27,7 +45,15 @@ const XASH_LIBS = {
   },
 };
 
-const XASH_BASE_DIR = '/rodir/';
+// Perform these callbacks when the matching command is emitted from the xash console
+const BASE_GAME_SETTINGS = {
+  consoleCallbacks: [
+    {
+      match: SHUTDOWN_MESSAGE,
+      callback: () => window.location.reload(),
+    },
+  ] as ConsoleCallback[],
+};
 
 export const GAME_SETTINGS = {
   HL: {
@@ -39,6 +65,7 @@ export const GAME_SETTINGS = {
       client: HLClientURL,
       server: HLServerURL,
     },
+    ...BASE_GAME_SETTINGS,
   },
   CS: {
     name: 'Counter-Strike',
@@ -50,18 +77,17 @@ export const GAME_SETTINGS = {
       client: CSClientURL,
       server: CSServerURL,
     },
+    ...BASE_GAME_SETTINGS,
   },
 } as const;
 
 const DEFAULT_ARGS = [`+hud_scale`, '-1.5', '+volume', '0.05'];
-
 const WINDOW_ARGS = ['-windowed', ...DEFAULT_ARGS];
-
 const FULLSCREEN_ARGS = ['-fullscreen', ...DEFAULT_ARGS];
-
 const CONSOLE_ARG = '-console';
 
 export const useXashStore = defineStore('xash', () => {
+  // State
   const xashCanvas = ref<HTMLCanvasElement>();
   const selectedGame = ref<Enumify<typeof GAME_SETTINGS>>(GAME_SETTINGS.HL);
   const selectedZip = ref('');
@@ -73,35 +99,20 @@ export const useXashStore = defineStore('xash', () => {
   const fullScreen = ref(false);
   const enableConsole = ref(true);
 
-  const downloadZip = async (): Promise<ArrayBuffer | undefined> => {
-    if (!selectedZip.value) return;
-    loadingProgress.value = 0;
-    loading.value = true;
-    return await getZip(
-      selectedZip.value,
-      selectedGame.value.publicDir,
-      (progress: number) => (loadingProgress.value = progress),
-    );
-  };
-
+  // Helper functions
   const getLaunchArgs = () => {
-    const launchArgs = fullScreen.value ? FULLSCREEN_ARGS : WINDOW_ARGS;
+    const baseArgs = fullScreen.value ? FULLSCREEN_ARGS : WINDOW_ARGS;
     const args = [
       ...selectedGame.value.launchArgs,
-      ...launchArgs,
-      ...launchOptions.value.split(' ').filter(Boolean), // Use filter(Boolean) to remove empty strings
+      ...baseArgs,
+      ...launchOptions.value.split(' ').filter(Boolean),
     ];
+
     if (enableConsole.value) {
       args.push(CONSOLE_ARG);
     }
-    return args;
-  };
 
-  const increaseLoadedAmount = () => {
-    loadingProgress.value++;
-    if (loadingProgress.value >= maxLoadingAmount.value) {
-      onEndLoading();
-    }
+    return args;
   };
 
   const onStartLoading = () => {
@@ -114,24 +125,30 @@ export const useXashStore = defineStore('xash', () => {
     showXashSettingUI.value = false;
   };
 
+  const increaseLoadedAmount = () => {
+    loadingProgress.value++;
+    if (loadingProgress.value >= maxLoadingAmount.value) {
+      onEndLoading();
+    }
+  };
+
   const initXash = async () => {
-    const args = getLaunchArgs();
+    const launchArguments = getLaunchArgs();
     const xash = new Xash3D({
-      args,
+      module: {
+        arguments: launchArguments,
+      },
       canvas: xashCanvas.value,
       libraries: selectedGame.value.libraries,
-      onRuntimeInitialized: function () {},
     });
-
+    // Proxy the console output through this function that runs `consoleCallbacks` when xash logs the matching strings.
+    onConsoleMessage(selectedGame.value.consoleCallbacks);
     await xash.init();
     return xash;
   };
 
-  const startXashFiles = async (filesArray: FilesWithPath[]) => {
-    if (!xashCanvas.value) {
-      console.error('Xash canvas is not available.');
-      return;
-    }
+  // Common file processing logic
+  const processFiles = async (filesArray: FilesWithPath[], xash: Xash3D) => {
     if (!filesArray?.length) {
       console.warn('No files selected to start Xash.');
       return;
@@ -139,8 +156,6 @@ export const useXashStore = defineStore('xash', () => {
 
     onStartLoading();
     maxLoadingAmount.value = filesArray.length;
-
-    const xash = await initXash();
 
     xash.em.FS.mkdirTree(XASH_BASE_DIR);
 
@@ -153,9 +168,11 @@ export const useXashStore = defineStore('xash', () => {
       rootDirEndIndex !== -1 ? firstPath.substring(0, rootDirEndIndex + 1) : '';
 
     const allDirs = new Set<string>();
+
+    // Collect directories first
     for (const entry of filesArray) {
       const relativePath = entry.path.substring(pathPrefixToRemove.length);
-      if (!relativePath) continue; // Skip the root directory itself.
+      if (!relativePath) continue;
 
       const path = XASH_BASE_DIR + relativePath;
       const dir = path.substring(0, path.lastIndexOf('/'));
@@ -164,13 +181,14 @@ export const useXashStore = defineStore('xash', () => {
       }
     }
 
+    // Create directories
     for (const dir of allDirs) {
       xash.em.FS.mkdirTree(dir);
     }
 
+    // Write files
     for (const entry of filesArray) {
       const relativePath = entry.path.substring(pathPrefixToRemove.length);
-
       if (!relativePath) {
         increaseLoadedAmount();
         continue;
@@ -183,8 +201,30 @@ export const useXashStore = defineStore('xash', () => {
     }
 
     xash.em.FS.chdir(XASH_BASE_DIR);
+  };
+
+  // Download and unzip logic
+  const downloadZip = async (): Promise<ArrayBuffer | undefined> => {
+    if (!selectedZip.value) return;
+    loadingProgress.value = 0;
+    loading.value = true;
+    return await getZip(
+      selectedZip.value,
+      selectedGame.value.publicDir,
+      (progress: number) => (loadingProgress.value = progress),
+    );
+  };
+
+  const startXashFiles = async (filesArray: FilesWithPath[]) => {
+    if (!xashCanvas.value) {
+      console.error('Xash canvas is not available.');
+      return;
+    }
+    setCanvasLoading();
+
+    const xash = await initXash();
+    await processFiles(filesArray, xash);
     xash.main();
-    onEndLoading();
   };
 
   const startXashZip = async () => {
@@ -193,25 +233,19 @@ export const useXashStore = defineStore('xash', () => {
       return;
     }
 
-    onStartLoading();
-
     const zipBuffer = await downloadZip();
-
     if (!zipBuffer) {
       console.error('Failed to download the zip file.');
       return;
     }
 
     const xash = await initXash();
-
     const zipData = new Uint8Array(zipBuffer);
     const files = unzipSync(zipData);
-
     xash.em.FS.mkdirTree(XASH_BASE_DIR);
 
     for (const [filename, content] of Object.entries(files)) {
       const path = XASH_BASE_DIR + filename;
-
       if (filename.endsWith('/')) {
         xash.em.FS.mkdirTree(path);
       } else {
@@ -223,17 +257,10 @@ export const useXashStore = defineStore('xash', () => {
       }
     }
 
-    console.log(xash.em.FS);
     xash.em.FS.chdir(XASH_BASE_DIR);
     xash.main();
 
     onEndLoading();
-
-    // if (import.meta.env.DEV) {
-      xash.Cmd_ExecuteString('sv_cheats 1')
-      xash.Cmd_ExecuteString('map c1a0')
-      xash.Cmd_ExecuteString('impulse 101')
-    // }
   };
 
   return {
