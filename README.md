@@ -70,7 +70,7 @@ Before you select the folder you need to specify which game folder to launch usi
 
 #### Why doesn't multiplayer work?
 
-If you want to play multiplayer you should use this version of [Half-Life: Deathmatch on dos.zone](https://dos.zone/hldm/). The WASM client needs to proxy its network requests via a websocket in order to do online multiplayer, afaik [Xash3d-FWGS-webassembly](https://github.com/yohimik/webxash3d-fwgs) does not have this ability yet.
+If you want to play multiplayer you should use this version of [Half-Life: Deathmatch on dos.zone](https://dos.zone/hldm/) or look into using https://github.com/yohimik/goxash3d-fwgs. The WASM client needs to proxy its network requests via a websocket in order to do online multiplayer.
 
 #### Why doesn't my mod work?
 
@@ -88,22 +88,7 @@ Nope, I'm not the maintainer of this port, I just wrote a frontend for it, pleas
 Clone the repo:
 
 ```bash
-git clone --recurse-submodules https://github.com/x8BitRain/webXash.git
+git clone https://github.com/x8BitRain/webXash.git
 cd webXash
-```
-
-~~Build and extract the wasm files from webxash3d-fwgs (this takes a while).~~
-
-~~./build-xash.sh~~
-
-This step seems to be broken so you will need build and extract the WASM binaries following the steps from this repo: https://github.com/yohimik/webxash3d-fwgs 
-and this script https://github.com/x8BitRain/webXash/blob/main/build-xash.sh#L36, HL binaries go into `public/hl` and CS bins go in `public/cs`. If you know how to get this script running without corrupting the WASM binaries please submit a PR!
-
-
-Start or build the frontend (I use bun here, but npm also works).
-
-```bash
-bun install
-bun dev
-bun build
+npm run dev
 ```
