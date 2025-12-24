@@ -1,27 +1,46 @@
-import { type Xash3D } from 'xash3d-fwgs';
-import { type Enumify } from '/@/types.ts';
-import { type GAME_SETTINGS, useXashStore } from '/@/stores/store.ts';
-import {
-  type IDBSaveGame,
-  type SavedIdbData,
-  type SaveEntry,
-} from '/@/services/idb-manager.ts';
-import { IdbManager } from '/@/services/index.ts';
+import { createStore, get, set, values, type UseStore } from 'idb-keyval';
+import type { Xash3D } from 'xash3d-fwgs';
+import type { Enumify } from '/@/types.ts';
+import type { GAME_SETTINGS } from '/@/stores/store.ts';
+import { useXashStore } from '/@/stores/store.ts';
 
+// Constants
+const DEFAULT_IDB_NAME = 'xash-idb';
+const SAVES_STORE_NAME = 'xash-saves';
+const CUSTOM_SAVES_NAME = 'xash-custom-saves';
 const RODIR = '/rodir/';
-export const SAVE_DIR = 'valve/save/';
-const CUSTOM_SAVE_NAME = 'Custom Saves';
+export const DEFAULT_GAME_DIR = 'valve/';
+
+// Types
+export interface IDBSaveGame {
+  id: string;
+  name: string;
+  data: Uint8Array;
+  lastModified: number;
+}
+
+export interface SavedIdbData<T> {
+  gameId: string;
+  data: T;
+}
+
+export type SaveEntry = SavedIdbData<IDBSaveGame[]>;
 
 class SaveManager {
   private _xash: Xash3D | null = null;
+  private readonly _savesStore: UseStore;
+
+  constructor() {
+    this._savesStore = createStore(DEFAULT_IDB_NAME, SAVES_STORE_NAME);
+  }
 
   private get FS() {
     return this._xash?.em.FS;
   }
 
-  private _buildSaveLocation(saveName: string) {
+  private _buildSaveLocation(saveName: string = ''): string {
     const store = useXashStore();
-    const saveLocation = (RODIR + store.customGameArg + '/' + saveName).replace(
+    const saveLocation = (RODIR + store.customGameArg + '/save/' + saveName).replace(
       '//',
       '/',
     );
@@ -29,137 +48,172 @@ class SaveManager {
     return saveLocation;
   }
 
-  private _ensureSaveFolderExists() {
-    const saveLocation = this._buildSaveLocation('');
+  private _ensureSaveFolderExists(): void {
+    if (!this.FS) return;
+
+    const saveLocation = this._buildSaveLocation();
     try {
-      this.FS.readdir(saveLocation)
+      this.FS.readdir(saveLocation);
     } catch (error) {
       // @ts-ignore -- errno 44 usually means the folder doesn't exist.
-      if (error && error.errno && error.errno === 44) {
+      if (error?.errno === 44) {
         this.FS.mkdir(saveLocation);
       }
     }
+  }
+
+  private async _getSaveEntry(gameId: string): Promise<SaveEntry | undefined> {
+    return await get<SaveEntry>(gameId, this._savesStore);
+  }
+
+  private async _setSaveEntry(gameId: string, data: SaveEntry): Promise<void> {
+    await set(gameId, data, this._savesStore);
+  }
+
+  private _readSaveFiles(): string[] {
+    if (!this.FS) return [];
+
+    const rawSaves = this.FS.readdir(this._buildSaveLocation());
+    return rawSaves.filter((fileName: string) =>
+      fileName.endsWith('.sav'),
+    ) as string[];
+  }
+
+  private _createSaveGame(fileName: string): IDBSaveGame | null {
+    if (!this.FS) return null;
+
+    const saveData = this.FS.readFile(
+      this._buildSaveLocation(fileName),
+    ) as Uint8Array;
+
+    return {
+      id: crypto.randomUUID(),
+      name: fileName,
+      data: saveData,
+      lastModified: Date.now(),
+    };
+  }
+
+  private _upsertSave(saves: IDBSaveGame[], newSave: IDBSaveGame): IDBSaveGame[] {
+    const existingIndex = saves.findIndex((save) => save.name === newSave.name);
+
+    if (existingIndex > -1) {
+      // Update existing save with new data but keep the same id
+      saves[existingIndex] = {
+        ...saves[existingIndex],
+        data: newSave.data,
+        lastModified: Date.now(),
+      };
+    } else {
+      saves.push(newSave);
+    }
+
+    return saves;
   }
 
   public init(xash: Xash3D): void {
     this._xash = xash;
   }
 
-  public async onSave(selectedGame: Enumify<typeof GAME_SETTINGS>) {
+  public async onSave(selectedGame: Enumify<typeof GAME_SETTINGS>): Promise<void> {
+    const store = useXashStore();
     if (!this._xash) {
       console.warn('Xash not setup yet');
       return;
     }
+    console.log(this.FS);
 
-    let existingCategory: SaveEntry | undefined = undefined;
-    const rawSaves = this.FS.readdir(RODIR + SAVE_DIR);
-    const existingSaves = await IdbManager.getAllSaves();
-
-    const saveFileNames = rawSaves.filter((fileName: string) =>
-      fileName.endsWith('.sav'),
-    ) as string[];
-
-    if (existingSaves && existingSaves.length > 0) {
-      existingCategory = existingSaves.find(
-        (existingSave) => existingSave.gameId === selectedGame.name,
-      );
-    }
-
-    if (existingCategory) {
-      for (const fileName of saveFileNames) {
-        const saveData = this.FS.readFile(
-          this._buildSaveLocation(fileName),
-        ) as Uint8Array;
-        existingCategory.data.push({
-          id: crypto.randomUUID(),
-          name: fileName,
-          data: saveData,
-          lastModified: Date.now(),
-        });
-      }
-      await IdbManager.setSaves(selectedGame.name, existingCategory);
-      return;
+    let gameId: string;
+    console.log(store.customGameArg === DEFAULT_GAME_DIR);
+    console.log(store.customGameArg, DEFAULT_GAME_DIR);
+    if (store.customGameArg === DEFAULT_GAME_DIR) {
+      gameId = selectedGame.name
     } else {
-      const save: SavedIdbData<IDBSaveGame[]> = {
-        gameId: selectedGame.name,
-        data: [],
-      };
-
-      for (const fileName of saveFileNames) {
-        const saveData = this.FS.readFile(
-          this._buildSaveLocation(fileName),
-        ) as Uint8Array;
-        save.data.push({
-          id: crypto.randomUUID(),
-          name: fileName,
-          data: saveData,
-          lastModified: Date.now(),
-        });
-      }
-
-      await IdbManager.setSaves(selectedGame.name, save);
+      gameId = store.customGameArg
     }
+    console.log(gameId);
+
+    const saveFileNames = this._readSaveFiles();
+    console.log(saveFileNames);
+    if (saveFileNames.length === 0) return;
+
+    const existingEntry = await this._getSaveEntry(gameId);
+    let saves: IDBSaveGame[] = existingEntry?.data ?? [];
+
+    for (const fileName of saveFileNames) {
+      const saveGame = this._createSaveGame(fileName);
+      if (saveGame) {
+        saves = this._upsertSave(saves, saveGame);
+      }
+    }
+
+    await this._setSaveEntry(gameId, {
+      gameId,
+      data: saves,
+    });
   }
 
   public async listSaves(): Promise<SaveEntry[]> {
-    return await IdbManager.getAllSaves();
+    return await values<SaveEntry>(this._savesStore);
   }
 
   public async addCustomSaves(saves: File[]): Promise<void> {
-    const existingCustomSaves = await IdbManager.getCustomSaves();
-    // Append to custom saves if exists
-    if (existingCustomSaves && existingCustomSaves.gameId) {
-      for (const save of saves) {
-        const saveArrayBuffer = await save.arrayBuffer();
-        const saveUint8Array = new Uint8Array(saveArrayBuffer);
-        existingCustomSaves.data.push({
-          id: crypto.randomUUID(),
-          name: save.name,
-          data: saveUint8Array,
-          lastModified: Date.now(),
-        });
-      }
-      await IdbManager.setCustomSaves(existingCustomSaves);
-      return;
-    } else {
-      // Otherwise, create a new entry
-      const newCustomSave: SavedIdbData<IDBSaveGame[]> = {
-        gameId: CUSTOM_SAVE_NAME,
-        data: [],
+    const existingCustomSaves = await get<SaveEntry>(
+      CUSTOM_SAVES_NAME,
+      this._savesStore,
+    );
+
+    let customSaves: IDBSaveGame[] = existingCustomSaves?.data ?? [];
+
+    for (const save of saves) {
+      const saveArrayBuffer = await save.arrayBuffer();
+      const newSave: IDBSaveGame = {
+        id: crypto.randomUUID(),
+        name: save.name,
+        data: new Uint8Array(saveArrayBuffer),
+        lastModified: Date.now(),
       };
-      for (const save of saves) {
-        const saveArrayBuffer = await save.arrayBuffer();
-        const saveUint8Array = new Uint8Array(saveArrayBuffer);
-        newCustomSave.data.push({
-          id: crypto.randomUUID(),
-          name: save.name,
-          data: saveUint8Array,
-          lastModified: Date.now(),
-        });
-      }
-      await IdbManager.setCustomSaves(newCustomSave);
+      customSaves = this._upsertSave(customSaves, newSave);
     }
+
+    await set(
+      CUSTOM_SAVES_NAME,
+      {
+        gameId: CUSTOM_SAVES_NAME,
+        data: customSaves,
+      },
+      this._savesStore,
+    );
   }
 
   public async removeCustomSave(save: IDBSaveGame): Promise<void> {
-    const existingCustomSaves = await IdbManager.getCustomSaves();
-    if (existingCustomSaves && existingCustomSaves.gameId) {
-      const index = existingCustomSaves.data.findIndex(
-        (existingSave) => existingSave.lastModified === save.lastModified,
-      );
-      if (index > -1) {
-        existingCustomSaves.data.splice(index, 1);
-        await IdbManager.setCustomSaves(existingCustomSaves);
-      }
+    const existingCustomSaves = await get<SaveEntry>(
+      CUSTOM_SAVES_NAME,
+      this._savesStore,
+    );
+
+    if (!existingCustomSaves?.data) return;
+
+    const index = existingCustomSaves.data.findIndex(
+      (existingSave) => existingSave.id === save.id,
+    );
+
+    if (index > -1) {
+      existingCustomSaves.data.splice(index, 1);
+      await set(CUSTOM_SAVES_NAME, existingCustomSaves, this._savesStore);
     }
   }
 
-  public async transferSavesToGame() {
-    const allSaves = await IdbManager.getAllSaves();
+  public async transferSavesToGame(): Promise<void> {
+    if (!this.FS) return;
+
+    const allSaves = await this.listSaves();
     const flattenedSaves = allSaves.flatMap((save) => save.data);
+
     this._ensureSaveFolderExists();
+
     for (const save of flattenedSaves) {
-      if (save && save.name && save.data) {
+      if (save?.name && save?.data) {
         this.FS.writeFile(this._buildSaveLocation(save.name), save.data);
       }
     }

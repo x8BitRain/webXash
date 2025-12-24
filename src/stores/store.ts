@@ -7,7 +7,7 @@ import { unzipSync } from 'fflate';
 import setCanvasLoading from '/@/utils/setCanvasLoading.ts';
 import { delay } from '/@/utils/helpers.ts';
 import type { ConsoleCallback, Enumify } from '/@/types.ts';
-import { type SaveEntry } from '/@/services/idb-manager.ts';
+import { type SaveEntry } from '/@/services/save-manager.ts';
 import type { FilesWithPath } from '/@/utils/directory-open.ts';
 
 // Xash Imports
@@ -29,7 +29,7 @@ import CSMenuURL from 'cs16-client/cl_dll/menu_emscripten_wasm32.wasm?url';
 import CSClientURL from 'cs16-client/cl_dll/client_emscripten_wasm32.wasm?url';
 // @ts-ignore -- vite url imports
 import CSServerURL from 'cs16-client/dlls/cs_emscripten_wasm32.so?url';
-import { SAVE_DIR } from '/@/services/save-manager.ts';
+import { DEFAULT_GAME_DIR } from '/@/services/save-manager.ts';
 
 // Constants
 
@@ -41,6 +41,7 @@ const DYNAMIC_LIBRARIES = [
   'cl_dlls/client_emscripten_wasm32.wasm',
 ];
 
+export const DEFAULT_GAME = 'valve';
 const XASH_BASE_DIR = '/rodir/';
 
 const XASH_LIBS = {
@@ -135,6 +136,7 @@ export const useXashStore = defineStore(
     const loadingProgress = ref(1);
     const maxLoadingAmount = ref(100);
     const showXashSettingUI = ref(true);
+    // -- Launch options
     const launchOptions = ref('');
     const fullScreen = ref(false);
     const enableConsole = ref(true);
@@ -354,7 +356,7 @@ export const useXashStore = defineStore(
             const run = true;
             while (run) {
               try {
-                await xash.waitLog(callback.match, undefined, 500);
+                await xash.waitLog(callback.match, undefined, 1000);
                 callback.callback();
               } catch (_error) {
                 // noop
@@ -391,7 +393,7 @@ export const useXashStore = defineStore(
       if (customGameSearch && customGameSearch.length === 2) {
         return customGameSearch[1];
       } else {
-        return SAVE_DIR;
+        return DEFAULT_GAME_DIR;
       }
     })
 

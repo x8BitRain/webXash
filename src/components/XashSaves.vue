@@ -1,14 +1,19 @@
 <template>
-  <div
-    class="window no-resize"
-    name="Save Location"
-  >
-    <p v-if="showSaveInfo">The saves added here will be transferred into the location below. Saves made in-game will also be stored here.</p>
+  <div class="window no-resize" name="Save Location">
+    <p v-if="showSaveInfo">
+      The saves added here will be transferred into the location below. Saves
+      made in-game will also be stored here.
+    </p>
     <div class="save-location-wrapper">
       <label for="save-location-input"></label>
-      <input id="save-location-input" v-model="customGameArg" type="text" disabled />
+      <input
+        id="save-location-input"
+        v-model="correctedSaveLocation"
+        type="text"
+        disabled
+      />
       <div class="info-icon">
-        <img @click="showSaveInfo = !showSaveInfo" :src="InfoIcon" alt="" />
+        <img :src="InfoIcon" @click="showSaveInfo = !showSaveInfo" />
       </div>
     </div>
   </div>
@@ -26,8 +31,7 @@
           :key="data.name"
           class="menu-item"
           :class="{
-            'menu-item--selected':
-              selectedSave?.id === data?.id,
+            'menu-item--selected': selectedSave?.id === data?.id,
           }"
           @click="onSelectSave(data)"
         >
@@ -40,10 +44,10 @@
 </template>
 
 <script setup lang="ts">
-  import { ref } from 'vue';
-  import { useXashStore } from '/@/stores/store';
+  import { computed, ref } from 'vue';
+  import { DEFAULT_GAME, useXashStore } from '/@/stores/store';
   import { storeToRefs } from 'pinia';
-  import { type IDBSaveGame } from '/@/services/idb-manager.ts';
+  import { type IDBSaveGame } from '/@/services/save-manager.ts';
   import { SaveManager } from '/@/services';
   import InfoIcon from '../assets/info-icon.png?url';
 
@@ -56,6 +60,16 @@
   const showSaveInfo = ref<boolean>(false);
   const selectedSave = ref<IDBSaveGame>();
   const uploadElement = ref<null | HTMLInputElement>();
+
+  // Computed
+
+  const correctedSaveLocation = computed(() => {
+    if (!customGameArg.value.includes(DEFAULT_GAME)) {
+      return customGameArg.value + '/save/';
+    } else {
+      return customGameArg.value;
+    }
+  });
 
   // Methods
 
