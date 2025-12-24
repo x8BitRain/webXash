@@ -1,5 +1,5 @@
 <template>
-  <div class="window" :name="storedFolder ? 'Game: ' + storedFolder : 'Open folder'">
+  <div class="window no-resize" :name="storedFolder ? 'Game: ' + storedFolder : 'Open folder'">
     <div class="box">
       <button v-if="storedFolder" class="start-button" @click="start">
         <span> Start Game </span>

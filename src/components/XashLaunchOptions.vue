@@ -1,5 +1,5 @@
 <template>
-  <div class="window" name="Launch Options">
+  <div class="window no-resize" name="Launch Options">
     <div class="box">
       <div class="options">
         <label for="fullscreen">

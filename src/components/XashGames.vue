@@ -1,5 +1,5 @@
 <template>
-  <div class="window" name="Games">
+  <div class="window no-resize" name="Games">
     <div class="box inset">
       <p
         v-for="game in Object.values(GAME_SETTINGS)"

@@ -1,5 +1,5 @@
 <template>
-  <div class="window" name="Half-Life Demos">
+  <div class="window no-resize" name="Half-Life Demos">
     <div class="box inset">
       <p
         v-for="zip in zipList"

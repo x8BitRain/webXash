@@ -1,5 +1,5 @@
 <template>
-  <div class="window" name="Start">
+  <div class="window no-resize" name="Start">
     <div class="box">
       <button class="start-button" :disabled="!selectedZip" @click="start">
         Start

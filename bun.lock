@@ -5,14 +5,14 @@
       "name": "webxash",
       "dependencies": {
         "browser-fs-access": "0.37.0",
-        "cs16-client": "^0.0.2",
+        "cs16-client": "^0.1.2",
         "fflate": "0.8.2",
         "gh-pages": "^6.3.0",
-        "hlsdk-portable": "^0.0.2",
+        "hlsdk-portable": "^0.1.2",
         "pinia": "3.0.3",
         "pinia-plugin-persistedstate": "^4.4.1",
         "vue": "3.5.13",
-        "xash3d-fwgs": "1.0.1",
+        "xash3d-fwgs": "1.2.1",
       },
       "devDependencies": {
         "@eslint/js": "9.20.0",
@@ -290,7 +290,7 @@
 
     "cross-spawn": ["cross-spawn@7.0.6", "", { "dependencies": { "path-key": "^3.1.0", "shebang-command": "^2.0.0", "which": "^2.0.1" } }, "sha512-uV2QOWP2nWzsy2aMp8aRibhi9dlzF5Hgh5SHaB9OiTGEyDTiJJyx0uy51QXdyWbtAHNua4XJzUKca3OzKUd3vA=="],
 
-    "cs16-client": ["cs16-client@0.0.2", "", {}, "sha512-w2lEn3B95g2/XbWHcB49KQQcfTs1G/blcvlZawLGlPZTtEaDjuY2XXuCNdfb8Uxel7g17Ou3vs9aUpTZ5e7s6Q=="],
+    "cs16-client": ["cs16-client@0.1.2", "", {}, "sha512-0u4YL72tBOqowMpPuCg16TwJBk6vLRmWZiKDVejTB32gb6gmyRicnzQmzUi4r9sUctuzJmvwlYyEEgYFsOizjw=="],
 
     "cssesc": ["cssesc@3.0.0", "", { "bin": { "cssesc": "bin/cssesc" } }, "sha512-/Tb/JcjK111nNScGob5MNtsntNM1aCNUDipB/TkwZFhyDrrE47SOx/18wF2bbjgc3ZzCSKW1T5nt5EbFoAz/Vg=="],
 
@@ -394,7 +394,7 @@
 
     "he": ["he@1.2.0", "", { "bin": { "he": "bin/he" } }, "sha512-F/1DnUGPopORZi0ni+CvrCgHQ5FyEAHRLSApuYWMmrbSwoN2Mn/7k+Gl38gJnR7yyDZk6WLXwiGod1JOWNDKGw=="],
 
-    "hlsdk-portable": ["hlsdk-portable@0.0.2", "", {}, "sha512-2LSFWgUSWQpV/LtmioF0l11Eh1UdEdvzB+KyDiJm+6CW3xCN3pHFukzkI83biB8w4MWUUMd91IowV+X5mLIMvg=="],
+    "hlsdk-portable": ["hlsdk-portable@0.1.2", "", {}, "sha512-UqHnJrdmNPdjHOULbpNFF/kL3bazbWzpKdv8o349FHG5ztvdl+YTg6qbuhRMDOnPt/4KmIRfCDQnt9cNCafTUQ=="],
 
     "hookable": ["hookable@5.5.3", "", {}, "sha512-Yc+BQe8SvoXH1643Qez1zqLRmbA5rCL+sSmk6TVos0LWVfNIB7PGncdlId77WzLGSIB5KaWgTaNTs2lNVEI6VQ=="],
 
@@ -624,7 +624,7 @@
 
     "word-wrap": ["word-wrap@1.2.5", "", {}, "sha512-BN22B5eaMMI9UMtjrGd5g5eCYPpCPDUy0FJXbYsaT5zYxjFOckS53SQDE3pWkVoWpHXVb3BrYcEN4Twa55B5cA=="],
 
-    "xash3d-fwgs": ["xash3d-fwgs@1.0.1", "", {}, "sha512-+SWWZaUt5FSk3WIWToTCn79gFc3Hg30OTALORKq4ocVPR4miBaJG3XX4jFKWPhZl4a6PBjge5QyV6sfrM8l98w=="],
+    "xash3d-fwgs": ["xash3d-fwgs@1.2.1", "", {}, "sha512-2QMi89UkQ7bvYs0rB6h1mHSYY63TZYsstwx8L3lMkVLLJxL0d/peZYyb6gbb4+BRRrYEzGMLNsIshsXCw3HnLw=="],
 
     "xml-name-validator": ["xml-name-validator@4.0.0", "", {}, "sha512-ICP2e+jsHvAj2E2lIHxa5tjXRlKDJo4IdvPvCXbXQGdzSfmSpNVyIKMvoZHjDY9DP0zV17iI85o90vRFXNccRw=="],
 

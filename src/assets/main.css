@@ -2,29 +2,30 @@
 @import "./blacksteam/blacksteam.css";
 
 main {
-  position: relative;
+    position: relative;
 }
 
 #app {
-  height: 100vh;
-  width: 100vw;
-  z-index: 10;
+    height: 100vh;
+    width: 100vw;
+    z-index: 10;
+    overflow: hidden;
 }
 
 canvas,
 #app {
-  position: absolute;
-  top: 0;
-  left: 0;
+    position: absolute;
+    top: 0;
+    left: 0;
 }
 
 canvas {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-image: url("./hl.svg");
-  background-repeat: no-repeat;
-  background-position: center;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-image: url("./hl.svg");
+    background-repeat: no-repeat;
+    background-position: center;
 }

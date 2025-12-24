@@ -1,9 +1,13 @@
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
+import { SaveManager } from '/@/services';
 import { defineStore } from 'pinia';
 import { getZip } from '/@/utils/zip-helpers';
-import { type Enumify } from '/@/types.ts';
 import { Xash3D } from 'xash3d-fwgs';
 import { unzipSync } from 'fflate';
+import setCanvasLoading from '/@/utils/setCanvasLoading.ts';
+import { delay } from '/@/utils/helpers.ts';
+import type { ConsoleCallback, Enumify } from '/@/types.ts';
+import { type SaveEntry } from '/@/services/idb-manager.ts';
 import type { FilesWithPath } from '/@/utils/directory-open.ts';
 
 // Xash Imports
@@ -12,28 +16,30 @@ import filesystemURL from 'xash3d-fwgs/filesystem_stdio.wasm?url';
 // @ts-ignore -- vite url imports
 import xashURL from 'xash3d-fwgs/xash.wasm?url';
 // @ts-ignore -- vite url imports
-import menuURL from 'xash3d-fwgs/cl_dll/menu_emscripten_wasm32.wasm?url';
+import menuURL from 'xash3d-fwgs/libmenu.wasm?url';
 // @ts-ignore -- vite url imports
-import HLClientURL from 'hlsdk-portable/cl_dll/client_emscripten_wasm32.wasm?url';
+import webgl2URL from 'xash3d-fwgs/libref_webgl2.wasm?url';
+// @ts-ignore -- vite url imports
+import HLClientURL from 'hlsdk-portable/cl_dlls/client_emscripten_wasm32.wasm?url';
 // @ts-ignore -- vite url imports
 import HLServerURL from 'hlsdk-portable/dlls/hl_emscripten_wasm32.so?url';
-// @ts-ignore -- vite url imports
-import gles3URL from 'xash3d-fwgs/libref_gles3compat.wasm?url';
 // @ts-ignore -- vite url imports
 import CSMenuURL from 'cs16-client/cl_dll/menu_emscripten_wasm32.wasm?url';
 // @ts-ignore -- vite url imports
 import CSClientURL from 'cs16-client/cl_dll/client_emscripten_wasm32.wasm?url';
 // @ts-ignore -- vite url imports
 import CSServerURL from 'cs16-client/dlls/cs_emscripten_wasm32.so?url';
-import setCanvasLoading from '/@/utils/setCanvasLoading.ts';
-import {
-  type ConsoleCallback,
-  onConsoleMessage,
-  SHUTDOWN_MESSAGE,
-} from '/@/utils/console-callbacks.ts';
-import { delay } from '/@/utils/helpers.ts';
+import { SAVE_DIR } from '/@/services/save-manager.ts';
 
 // Constants
+
+const DYNAMIC_LIBRARIES = [
+  'filesystem_stdio.wasm',
+  'libref_webgl2.wasm',
+  'cl_dlls/menu_emscripten_wasm32.wasm',
+  'dlls/hl_emscripten_wasm32.so',
+  'cl_dlls/client_emscripten_wasm32.wasm',
+];
 
 const XASH_BASE_DIR = '/rodir/';
 
@@ -41,20 +47,49 @@ const XASH_LIBS = {
   filesystem: filesystemURL,
   xash: xashURL,
   menu: menuURL,
-  render: {
-    gles3compat: gles3URL,
-  },
 };
 
 // Perform these callbacks when the matching command is emitted from the xash console
 const BASE_GAME_SETTINGS = {
   consoleCallbacks: [
     {
-      id: 'onShutdown',
-      match: SHUTDOWN_MESSAGE,
+      id: 'onExit',
+      match: 'exit',
       callback: () => window.location.reload(),
     },
+    {
+      id: 'onQuit',
+      match: 'quit',
+      callback: () => window.location.reload(),
+    },
+    {
+      id: 'onShutdown',
+      match: 'CL_Shutdown()',
+      callback: () => window.location.reload(),
+    },
+    {
+      id: 'onTest',
+      match: 'test',
+      callback: () => console.log('test'),
+    },
+    {
+      id: 'onSave',
+      match: 'save',
+      callback: () => void 0, // We set what this does after xash launches.
+    },
   ] as ConsoleCallback[],
+};
+
+const setupSaveCallback = (selectedGame: typeof GAME_SETTINGS) => {
+  const saveCallback = BASE_GAME_SETTINGS.consoleCallbacks.find(
+    (callback) => callback.id === 'onSave',
+  );
+  if (saveCallback) {
+    saveCallback.callback = () => {
+      // @ts-ignore -- this works.
+      SaveManager.onSave(selectedGame);
+    };
+  }
 };
 
 export const GAME_SETTINGS = {
@@ -83,7 +118,7 @@ export const GAME_SETTINGS = {
   },
 } as const;
 
-const DEFAULT_ARGS = [`+hud_scale`, '-1.5', '+volume', '0.05'];
+const DEFAULT_ARGS = [`+hud_scale`, '2.5', '+volume', '0.05', '-ref', 'webgl2'];
 const WINDOW_ARGS = ['-windowed', ...DEFAULT_ARGS];
 const FULLSCREEN_ARGS = ['-fullscreen', ...DEFAULT_ARGS];
 const CONSOLE_ARG = '-console';
@@ -95,6 +130,7 @@ export const useXashStore = defineStore(
     const xashCanvas = ref<HTMLCanvasElement>();
     const selectedGame = ref<Enumify<typeof GAME_SETTINGS>>(GAME_SETTINGS.HL);
     const selectedZip = ref('');
+    const saves = ref<Partial<SaveEntry>[]>();
     const loading = ref(false);
     const loadingProgress = ref(1);
     const maxLoadingAmount = ref(100);
@@ -143,12 +179,31 @@ export const useXashStore = defineStore(
       const xash = new Xash3D({
         module: {
           arguments: launchArguments,
+          locateFile: (path: string) => {
+            switch (path) {
+              case 'xash.wasm':
+                return xashURL;
+              case 'filesystem_stdio.wasm':
+                return filesystemURL;
+              case 'cl_dlls/menu_emscripten_wasm32.wasm':
+                return menuURL;
+              case 'dlls/hl_emscripten_wasm32.so':
+                return HLServerURL;
+              case 'cl_dlls/client_emscripten_wasm32.wasm':
+                return HLClientURL;
+              case 'libref_webgl2.wasm':
+                return webgl2URL;
+              // Check this (not supported yet)
+              case 'libvgui_support.wasm':
+                return menuURL;
+            }
+            return path;
+          },
         },
         canvas: xashCanvas.value,
         libraries: selectedGame.value.libraries,
+        dynamicLibraries: DYNAMIC_LIBRARIES,
       });
-      // Proxy the console output through this function that runs `consoleCallbacks` when xash logs the matching strings.
-      onConsoleMessage(selectedGame.value.consoleCallbacks);
       await xash.init();
       return xash;
     };
@@ -279,26 +334,91 @@ export const useXashStore = defineStore(
     };
 
     const onAfterLoad = async (xash: Xash3D) => {
-      await delay(1500); // Wait for xash to fully load first.
+      await delay(500); // Wait for xash to fully load first.
+
+      SaveManager.init(xash);
+
+      // @ts-ignore -- this works
+      setupSaveCallback(selectedGame.value);
+
+      await SaveManager.transferSavesToGame()
+
       if (enableCheats.value) {
         xash.Cmd_ExecuteString('sv_cheats 1');
       }
+
+      // Init callbacks on console messages.
+      await Promise.all(
+        selectedGame.value.consoleCallbacks.map(
+          async (callback: ConsoleCallback) => {
+            const run = true;
+            while (run) {
+              try {
+                await xash.waitLog(callback.match, undefined, 500);
+                callback.callback();
+              } catch (_error) {
+                // noop
+              }
+              await delay(500);
+            }
+          },
+        ),
+      );
     };
+
+    const refreshSavesList = async () => {
+      const saveEntries = await SaveManager.listSaves();
+
+      // Throw away the game data for now just to save on memory.
+      for (const file of saveEntries) {
+        if (file.data) {
+          for (const saveData of file.data) {
+            saveData.data = new Uint8Array();
+          }
+        }
+      }
+
+      saves.value = saveEntries;
+    };
+
+    // Computed
+
+    const customGameArg = computed((): string => {
+      // This regex should return two groups if it detects:
+      // Group 0 (full match): -game blueshift
+      // Group 1: blueshift (the word after -game)
+      const customGameSearch = launchOptions.value?.match(/-game\s+(\S+)(?!.*-game\s+\S+)/);
+      if (customGameSearch && customGameSearch.length === 2) {
+        return customGameSearch[1];
+      } else {
+        return SAVE_DIR;
+      }
+    })
 
     // Hooks
 
-    onMounted(() => {
+    onMounted(async () => {
       // Reapply console callback methods as they do not persist across refreshes.
       selectedGame.value = {
         ...selectedGame.value,
-        ...BASE_GAME_SETTINGS
-      }
+        ...BASE_GAME_SETTINGS,
+      };
+
+      // Prevent closing window when pressing ctrl+w
+      window.addEventListener('close', (event: Event) => {
+        event.preventDefault();
+      });
+
+      // Getting Save Data from IDB
+      await refreshSavesList();
     });
 
     return {
+      // Data
       xashCanvas,
       selectedGame,
       selectedZip,
+      saves,
       loading,
       loadingProgress,
       maxLoadingAmount,
@@ -307,10 +427,14 @@ export const useXashStore = defineStore(
       fullScreen,
       enableConsole,
       enableCheats,
+      // Computed
+      customGameArg,
+      // Methods
       onStartLoading,
       downloadZip,
       startXashZip,
       startXashFiles,
+      refreshSavesList,
     };
   },
   {

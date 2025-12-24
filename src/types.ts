@@ -5,3 +5,9 @@ declare global {
     scriptDir: string;
   }
 }
+
+export type ConsoleCallback = {
+  id: string;
+  match: string;
+  callback: () => void;
+};

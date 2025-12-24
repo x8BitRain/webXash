@@ -23,6 +23,7 @@ public/*/filesystem_stdio
 public/cs16-client
 public/hlsdk-portable
 public/xash3d-fwgs
+public/hl/valve
 
 # misc
 vite.config.d.ts

@@ -1,5 +1,5 @@
 <template>
-  <div class="window" name="Open ZIP">
+  <div class="window no-resize" name="Open ZIP">
     <div class="box">
       <button class="start-button" @click="openZip">Open ZIP</button>
       <input
