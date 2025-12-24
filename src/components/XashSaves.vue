@@ -22,7 +22,7 @@
       <button @click="addSave">Add</button>
       <button @click="removeSave">Remove</button>
     </div>
-    <div class="box inset">
+    <div v-if="saves && saves.length > 0" class="box inset">
       <div v-for="save in saves" :key="save.gameId" class="saves-list">
         <b>{{ save.gameId }}</b>
         <div class="category-title-spacer"></div>

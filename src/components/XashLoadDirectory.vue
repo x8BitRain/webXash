@@ -1,13 +1,38 @@
 <template>
-  <div class="window no-resize" :name="storedFolder ? 'Game: ' + storedFolder : 'Open folder'">
+  <div
+    class="window no-resize"
+    :name="storedFolder ? 'Game: ' + storedFolder : 'Open folder'"
+  >
     <div class="box">
-      <button v-if="storedFolder" class="start-button" @click="start">
-        <span> Start Game </span>
-      </button>
+      <div v-if="subfolders.length > 0" class="box inset local-folders">
+        <p
+          v-for="folder in subfolders"
+          :key="folder"
+          class="menu-item"
+          :class="{ 'menu-item--selected': selectedLocalFolder === folder }"
+          @click="selectedLocalFolder = folder"
+        >
+          {{ folder }}
+        </p>
+      </div>
 
-      <button class="start-button" @click="chooseNewFolder">
-        <span> Open game Folder </span>
-      </button>
+      <div
+        class="start-buttons"
+        :class="{ 'start-buttons--has-folders': subfolders.length > 0 }"
+      >
+        <button
+          v-if="storedFolder"
+          class="start-button"
+          :disabled="!selectedLocalFolder"
+          @click="start"
+        >
+          <span> Start Game </span>
+        </button>
+
+        <button class="start-button" @click="chooseNewFolder">
+          <span> Open game Folder </span>
+        </button>
+      </div>
     </div>
   </div>
 </template>
@@ -18,8 +43,10 @@
     type FilesWithPath,
     clearStoredFolder,
     getStoredDirectoryHandle,
+    getImmediateSubfolders,
   } from '/@/utils/directory-open.ts';
-  import { onMounted, ref } from 'vue';
+  import { computed, onMounted, ref } from 'vue';
+  import { storeToRefs } from 'pinia';
 
   // Dependencies
 
@@ -29,7 +56,15 @@
 
   const files = ref<FilesWithPath[]>();
   const storedFolder = ref<string | null>(null);
+
+  const { selectedLocalFolder } = storeToRefs(store);
   const { startXashFiles } = store;
+
+  // Computed
+
+  const subfolders = computed(() => {
+    return getImmediateSubfolders(files.value ?? []);
+  });
 
   // Methods
 
@@ -47,6 +82,8 @@
     const storedDir = await getStoredDirectoryHandle();
     if (storedDir && storedDir?.name) {
       storedFolder.value = storedDir.name;
+      // Load files from the stored directory
+      files.value = await directoryOpen({ recursive: true });
     }
   };
 
@@ -56,7 +93,9 @@
       if (files.value) {
         await startXashFiles(files.value);
       } else {
-        alert('There were no files found in this folder, was it moved or deleted?')
+        alert(
+          'There were no files found in this folder, was it moved or deleted?',
+        );
       }
     } else {
       await startXashFiles(files.value);
@@ -71,12 +110,26 @@
 </script>
 
 <style scoped lang="scss">
-  .start-button {
-    text-align: center;
-    width: 100%;
+  .local-folders {
+    max-height: 200px;
+    overflow: auto;
+  }
 
-    &:first-child {
-      margin-bottom: 1rem;
+  .start-buttons {
+    display: flex;
+    flex-direction: column;
+
+    .start-button {
+      text-align: center;
+      width: 100%;
+
+      &:first-child {
+        margin-bottom: 1rem;
+      }
     }
+  }
+
+  .start-buttons--has-folders {
+    margin-top: 1rem;
   }
 </style>

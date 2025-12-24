@@ -6,23 +6,17 @@
       <XashLoadDirectory />
       <XashLoadZip />
       <XashLaunchOptions />
-      <XashStart />
+      <XashSaves v-if="selectedGame.name === GAME_SETTINGS.HL.name" />
       <Attribution />
-      <!-- Spacer for Flex layout -->
-      <br />
-      <br />
-      <!-- Spacer for Flex layout -->
-      <XashSaves />
     </div>
     <XashLoading v-if="loading" />
   </div>
 </template>
 
 <script setup lang="ts">
-  import { GAME_SETTINGS, useXashStore } from '/@/stores/store';
   import { storeToRefs } from 'pinia';
+  import { GAME_SETTINGS, useXashStore } from '/@/stores/store';
   import XashZips from './XashZips.vue';
-  import XashStart from '/@/components/XashStart.vue';
   import XashLoading from '/@/components/XashLoading.vue';
   import XashLaunchOptions from '/@/components/XashLaunchOptions.vue';
   import Attribution from '/@/components/Attribution.vue';
@@ -48,7 +42,7 @@
   }
 
   .xash-menu-flex {
-    height: 100vh;
+    height: 86vh;
     display: flex;
     flex-direction: column;
     flex-wrap: wrap;

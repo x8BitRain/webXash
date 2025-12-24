@@ -143,10 +143,7 @@ export default async (
       if (handle) {
         // Save the new handle for future use
         await saveDirectoryHandle(handle);
-
         console.info('New folder selected and saved:', handle.name);
-
-        return await getFiles(handle, options.recursive);
       }
     } catch (error) {
       alert(
@@ -156,6 +153,11 @@ export default async (
       console.warn('Directory selection cancelled or failed:', error);
       return;
     }
+  }
+
+  // Get files from the handle (whether stored or newly selected)
+  if (handle) {
+    return await getFiles(handle, options.recursive);
   }
 };
 
@@ -177,3 +179,33 @@ export const clearStoredFolder = async (): Promise<void> => {
     console.warn('Failed to clear stored directory handle:', error);
   }
 };
+
+export const getImmediateSubfolders = (filesArray: FilesWithPath[]): string[] => {
+  if (!filesArray || filesArray.length === 0) return [];
+
+  // Get the root folder name from the first file path
+  const firstPath = filesArray[0].path;
+  const rootDirEndIndex = firstPath.indexOf('/');
+  const rootDirName = rootDirEndIndex !== -1
+    ? firstPath.substring(0, rootDirEndIndex)
+    : '';
+
+  if (!rootDirName) return [];
+
+  const subfolders = new Set<string>();
+
+  for (const entry of filesArray) {
+    // Remove the root directory prefix
+    const pathWithoutRoot = entry.path.substring(rootDirName.length + 1);
+
+    // Get the first segment (immediate subfolder)
+    const firstSlashIndex = pathWithoutRoot.indexOf('/');
+    if (firstSlashIndex !== -1) {
+      const subfolder = pathWithoutRoot.substring(0, firstSlashIndex);
+      subfolders.add(subfolder);
+    }
+  }
+
+  return Array.from(subfolders);
+};
+

@@ -131,6 +131,7 @@ export const useXashStore = defineStore(
     const xashCanvas = ref<HTMLCanvasElement>();
     const selectedGame = ref<Enumify<typeof GAME_SETTINGS>>(GAME_SETTINGS.HL);
     const selectedZip = ref('');
+    const selectedLocalFolder = ref('');
     const saves = ref<Partial<SaveEntry>[]>();
     const loading = ref(false);
     const loadingProgress = ref(1);
@@ -154,6 +155,11 @@ export const useXashStore = defineStore(
 
       if (enableConsole.value) {
         args.push(CONSOLE_ARG);
+      }
+
+      if (selectedLocalFolder.value) {
+        args.push('-game');
+        args.push(selectedLocalFolder.value);
       }
 
       return args;
@@ -343,7 +349,7 @@ export const useXashStore = defineStore(
       // @ts-ignore -- this works
       setupSaveCallback(selectedGame.value);
 
-      await SaveManager.transferSavesToGame()
+      await SaveManager.transferSavesToGame();
 
       if (enableCheats.value) {
         xash.Cmd_ExecuteString('sv_cheats 1');
@@ -389,13 +395,15 @@ export const useXashStore = defineStore(
       // This regex should return two groups if it detects:
       // Group 0 (full match): -game blueshift
       // Group 1: blueshift (the word after -game)
-      const customGameSearch = launchOptions.value?.match(/-game\s+(\S+)(?!.*-game\s+\S+)/);
+      const customGameSearch = launchOptions.value?.match(
+        /-game\s+(\S+)(?!.*-game\s+\S+)/,
+      );
       if (customGameSearch && customGameSearch.length === 2) {
         return customGameSearch[1];
       } else {
         return DEFAULT_GAME_DIR;
       }
-    })
+    });
 
     // Hooks
 
@@ -420,6 +428,7 @@ export const useXashStore = defineStore(
       xashCanvas,
       selectedGame,
       selectedZip,
+      selectedLocalFolder,
       saves,
       loading,
       loadingProgress,
@@ -444,6 +453,7 @@ export const useXashStore = defineStore(
       pick: [
         'selectedGame',
         'selectedZip',
+        'selectedLocalFolder',
         'launchOptions',
         'fullScreen',
         'enableConsole',
