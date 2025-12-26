@@ -422,8 +422,9 @@ export const useXashStore = defineStore(
       };
 
       // Prevent closing window when pressing ctrl+w
-      window.addEventListener('close', (event: Event) => {
-        event.preventDefault();
+      window.addEventListener('beforeunload', function (e) {
+        e.preventDefault();
+        e.returnValue = '';
       });
 
       // Getting Save Data from IDB
