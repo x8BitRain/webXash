@@ -1,0 +1,105 @@
+79
+selection		320 320hud1	160	160	80	20
+
+bucket1			320 320hud1	240	0	12	12
+bucket2			320 320hud1	240	12	12	12
+bucket3			320 320hud1	240	24	12	12	
+bucket4			320 320hud1	240	36	12	12
+bucket5			320 320hud1	240	48	12	12					
+bucket0			320 320hud1	240	60	12	12
+
+dmg_bio			320 320hud1	0	200	32	32
+dmg_poison		320 320hud1	0	200	32	32
+dmg_chem		320 320hud1	32	200	32	32
+dmg_cold		320 320hud1	64	200	32	32
+dmg_drown		320 320hud1	96	200	32	32
+dmg_heat		320 320hud1	128	200	32	32
+dmg_gas			320 320hud1	160	200	32	32
+dmg_rad			320 320hud1	192	200	32	32
+dmg_shock		320 320hud1	224	200	32	32
+
+number_0		320 320hud2	0	72	12  16
+number_1		320 320hud2	12	72	12  16
+number_2		320 320hud2	24	72	12  16
+number_3		320 320hud2	36	72	12  16
+number_4		320 320hud2	48	72	12  16
+number_5		320 320hud2	60	72	12  16
+number_6		320 320hud2	72	72	12  16
+number_7		320 320hud2	84	72	12  16
+number_8		320 320hud2	96	72	12  16
+number_9		320 320hud2	108	72	12  16
+
+divider			320 320hud2	120	72	1	20
+
+cross			320 320hud1	124	232	16	16
+
+suit_full		320 320hud1	160	180	20	20
+suit_empty		320 320hud1	180	180	20	20
+
+flash_full		320 320hud1	144	232	18	16
+flash_empty		320 320hud1	162	232	18	16
+flash_beam		320 320hud1	180	232	6	16
+
+train_back		320	320hud2 0	124	48	48
+train_stop		320	320hud2 48	124	48	48
+train_forward1	320	320hud2 96	124	48	48
+train_forward2	320	320hud2 144	124	48	48
+train_forward3	320	320hud2 192	124	48	48
+
+half-life		320 320hud2 0	172	256	16
+
+
+//===========================================
+
+
+selection		640 640hud3	0	180	170	45
+
+bucket1			640 640hud6	0	180	20	20
+bucket2			640 640hud6	20	180	20	20		
+bucket3			640 640hud6	40	180	20	20		
+bucket4			640 640hud6	60	180	20	20		
+bucket5			640 640hud6	80	180	20	20		
+bucket0			640 640hud6	100	180	20	20		
+
+dmg_poison		640 640hud2	170	0	64	64
+dmg_chem		640 640hud2	170	0	64	64
+dmg_drown		640 640hud2	170	64	64	64
+dmg_bio			640 640hud2	170	128	64	64
+dmg_gas			640 640hud3	170	0	64	64
+dmg_cold		640 640hud3	170	64	64	64
+dmg_heat		640 640hud3	170	128	64	64
+dmg_rad			640 640hud3	170 192	64	64
+dmg_shock		640 640hud2	170 192	64	64
+
+number_0		640 640hud1	0	225	20	24
+number_1		640 640hud1	24	225	20	24
+number_2		640 640hud1	48	225	20	24
+number_3		640 640hud1	72	225	20	24
+number_4		640 640hud1	96	225	20	24
+number_5		640 640hud1	120	225	20	24
+number_6		640 640hud1	144	225	20	24
+number_7		640 640hud1	168	225	20	24
+number_8		640 640hud1	192	225	20	24
+number_9		640 640hud1	216	225	20	24
+
+divider			640 640hud1	170	64	2	40
+
+cross			640 640hud1	170	144	32	32
+
+suit_full		640 640hud1	170	104	40	40
+suit_empty		640 640hud1	210	104	40	40
+
+flash_full		640 640hud1	170	176	32	32
+flash_empty		640 640hud1	202	144	32	32
+flash_beam		640 640hud1 234	144	16	32
+
+train_back		640	640hud5 170	0	72	72
+train_stop		640	640hud5 170	72	72	72
+train_forward1	640	640hud5 170	144	72	72
+train_forward2	640	640hud6 170	0	72	72
+train_forward3	640	640hud6 170	72	72	72
+
+autoaim_c		640	crosshairs	96	0	24	24
+
+half-			640 640hud4	0	226	256	30
+life			640 640hud5	0	226	256	30

@@ -19,7 +19,7 @@ This project enables seamless integration of the engine into modern web and cros
 
 ---
 
-## Discord Community
+## 🌐 Discord Community
 
 Need help? Want to share your project or ideas?
 **[Join our Discord community](https://discord.gg/cRNGjWfTDd)** to connect with others!
@@ -40,9 +40,7 @@ import { Xash3D } from "xash3d-fwgs"
 
 const x = new Xash3D({
     canvas: document.getElementById('canvas'),
-    module: {
-        arguments: ['-game', 'cstrike'],
-    }
+    arguments: ['-game', 'cstrike'],
 })
 await x.init()
 x.main()
@@ -59,3 +57,7 @@ The following SDKs are available to run specific mods or games:
 
 * [hlsdk-portable](https://www.npmjs.com/package/hlsdk-portable): Run Half-Life and compatible mods.
 * [cs16-client](https://www.npmjs.com/package/cs16-client): Run Counter-Strike 1.6 and its based mods.
+
+## 📝 Changelog
+
+See [CHANGELOG.md](https://github.com/yohimik/webxash3d-fwgs/tree/main/packages/xash3d-fwgs/CHANGELOG.md) for a full list of updates and release history.

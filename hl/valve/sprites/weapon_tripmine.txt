@@ -1,0 +1,7 @@
+6
+weapon			320 320hud1	160	80	80	20
+weapon_s		320 320hud1	160	100	80	20
+ammo			320 320hud2	72	18	18	18
+weapon			640 640hud3	0	90	170	45
+weapon_s		640 640hud6	0	90	170	45
+ammo			640 640hud4	194	96	24	24

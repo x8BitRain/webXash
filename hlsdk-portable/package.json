@@ -1,15 +1,18 @@
 {
   "name": "hlsdk-portable",
-  "version": "0.0.2+commit.343b09b",
+  "version": "0.1.2+commit.5fae1fb",
   "description": "HLSDK emscripten port",
   "homepage": "https://github.com/yohimik/webxash3d-fwgs",
   "scripts": {
     "build:wasm": "docker build --progress=plain -t hlsdk-builder . && docker run --rm -v \"$(pwd)/dist:/out\" hlsdk-builder",
-    "build": "npm run build:wasm"
+    "build": "npm run clean && npm run build:wasm",
+    "clean": "rm -rf ./dist"
   },
   "exports": {
-    "./cl_dll/client_emscripten_wasm32.wasm": "./dist/cl_dll/client_emscripten_wasm32.wasm",
-    "./dlls/hl_emscripten_wasm32.so": "./dist/dlls/hl_emscripten_wasm32.so"
+    "./cl_dll/client_emscripten_wasm32.wasm": "./dist/valve/cl_dlls/client_emscripten_wasm32.wasm",
+    "./cl_dlls/client_emscripten_wasm32.wasm": "./dist/valve/cl_dlls/client_emscripten_wasm32.wasm",
+    "./dlls/hl_emscripten_wasm32.so": "./dist/valve/dlls/hl_emscripten_wasm32.wasm",
+    "./dlls/hl_emscripten_wasm32.wasm": "./dist/valve/dlls/hl_emscripten_wasm32.wasm"
   },
   "files": [
     "dist/**/*"

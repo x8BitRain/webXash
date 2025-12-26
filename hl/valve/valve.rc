@@ -1,0 +1,20 @@
+// load the base configuration
+exec default.cfg
+
+// load the last saved configuration
+exec config.cfg
+
+// load the language configuration
+exec language.cfg
+
+// run a user script file if present
+exec autoexec.cfg
+
+// set up skill levels
+exec skill.cfg
+
+//
+// stuff command line statements
+//
+stuffcmds
+

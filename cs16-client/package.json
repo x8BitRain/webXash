@@ -1,16 +1,22 @@
 {
   "name": "cs16-client",
-  "version": "0.0.2+commit.6a9023c",
+  "version": "0.1.2+commit.15278ca",
   "description": "cs16-client emscripten port",
   "homepage": "https://github.com/yohimik/webxash3d-fwgs",
   "scripts": {
     "build:wasm": "docker build --progress=plain -t cs-builder . && docker run --rm -v \"$(pwd)/dist:/out\" cs-builder",
-    "build": "npm run build:wasm"
+    "build": "npm run clean && npm run build:wasm",
+    "clean": "rm -rf ./dist"
   },
   "exports": {
-    "./cl_dll/menu_emscripten_wasm32.wasm": "./dist/cl_dll/menu_emscripten_wasm32.wasm",
-    "./cl_dll/client_emscripten_wasm32.wasm": "./dist/cl_dll/client_emscripten_wasm32.wasm",
-    "./dlls/cs_emscripten_wasm32.so": "./dist/dlls/cs_emscripten_wasm32.so"
+    "./cl_dll/menu_emscripten_wasm32.wasm": "./dist/cstrike/cl_dlls/menu_emscripten_wasm32.wasm",
+    "./cl_dll/client_emscripten_wasm32.wasm": "./dist/cstrike/cl_dlls/client_emscripten_wasm32.wasm",
+    "./dlls/cs_emscripten_wasm32.so": "./dist/cstrike/dlls/cs_emscripten_wasm32.wasm",
+    "./cl_dlls/menu_emscripten_wasm32.wasm": "./dist/cstrike/cl_dlls/menu_emscripten_wasm32.wasm",
+    "./cl_dlls/client_emscripten_wasm32.wasm": "./dist/cstrike/cl_dlls/client_emscripten_wasm32.wasm",
+    "./dlls/cs_emscripten_wasm32.wasm": "./dist/cstrike/dlls/cs_emscripten_wasm32.wasm",
+    "./dlls/yapb_emscripten_wasm32.wasm": "./dist/cstrike/dlls/yapb_emscripten_wasm32.wasm",
+    "./extras.pk3": "./dist/cstrike/extras.pk3"
   },
   "files": [
     "dist/**/*"

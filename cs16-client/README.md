@@ -2,6 +2,8 @@
 
 > Emscripten-compiled WebAssembly (WASM) binaries of the [CS16-Client](https://github.com/Velaron/cs16-client), targeting [Xash3D-FWGS](https://github.com/FWGS/xash3d-fwgs), with zero external dependencies.
 
+[![Join our Discord](https://img.shields.io/discord/1397890383605927967?color=5865F2&label=Discord&logo=discord&logoColor=white&style=for-the-badge)](https://discord.gg/cRNGjWfTDd)
+
 ## 🚀 Project Overview
 
 This package provides **precompiled CS 1.6 binaries** compiled to **WASM** via **Emscripten**, specifically targeting the [Xash3D-FWGS](https://github.com/FWGS/xash3d-fwgs).
@@ -17,6 +19,13 @@ Designed for use with [Xash3D-FWGS Web ports](https://github.com/yohimik/webxash
 - ✅ **Drop-in mod support**
 - ✅ **Zero runtime dependencies**
 - ✅ **Runs entirely in-browser**
+
+---
+
+## 🌐 Discord Community
+
+Need help? Want to share your project or ideas?
+**[Join our Discord community](https://discord.gg/cRNGjWfTDd)** to connect with others!
 
 ---
 
@@ -37,7 +46,7 @@ import serverUrl from "cs16-client/dlls/cs_emscripten_wasm32.so"
 
 const x = new Xash3D({
     canvas: document.getElementById('canvas'),
-    args: ['-game', 'cstrike'],
+    arguments: ['-game', 'cstrike'],
     libraries: {
         menu: menuUrl,
         client: clientUrl,
@@ -52,3 +61,7 @@ x.Cmd_ExecuteString('noclip')
 x.Cmd_ExecuteString('kill')
 x.quit()
 ```
+
+## 📝 Changelog
+
+See [CHANGELOG.md](https://github.com/yohimik/webxash3d-fwgs/tree/main/packages/cs16-client/CHANGELOG.md) for a full list of updates and release history.

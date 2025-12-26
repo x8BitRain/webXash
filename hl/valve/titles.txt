@@ -1,0 +1,577 @@
+//TITLES FOR HALF-LIFE
+// Position command $position x y 
+// x & y are from 0 to 1 to be screen resolution independent
+// -1 means center in each dimension
+// Effect command $effect <effect number>
+// effect 0 is fade in/fade out
+// effect 1 is flickery credits
+// effect 2 is write out (training room)
+// Text color r g b command $color
+// fadein time fadeout time / hold time
+// $fadein (message fade in time - per character in effect 2)
+// $fadeout (message fade out time)
+// $holdtime (stay on the screen for this long)
+
+//Half-Life sprite is in the initial fade.  Jay and Greg have to do this.
+
+//INTRO TITLES
+// All centered for now
+$position -1 -1
+$effect 2
+// This is the final color
+$color 100 100 100
+// This is the highlight color
+$color2 240 110 0
+// This is the time it takes to fade each character
+$fadein 0.01
+// This is the amount of time the highlight lags behind the leading edge of the text
+$fxtime 0.25
+// How long to hold the message on the screen (after it scans out)
+$holdtime 3.5
+// How long it takes to fade out the message after holding
+$fadeout 1.5
+
+CR27
+{
+Black Mesa Research Facility
+Black Mesa, New Mexico
+}
+
+
+//THERE NEEDS TO BE A FAIR AMOUNT OF TIME BEFORE CREDITS BEGIN TO SEPARATE LOCATION FROM CREDIT
+ 
+//INTRO CREDITS
+// Test values -- JAY
+// Lower left
+$position 0.1 0.8
+$effect 1
+// Final fade-in color
+$color 128 128 128
+// This is the highlight/flash color
+$color2 0 0 0
+$fadein 1.5
+$fadeout 0.5
+$holdtime 1.2
+
+CR1
+{
+Ted Backman
+}
+
+CR2
+{
+Kelly Bailey
+}
+
+CR3
+{
+Yahn Bernier
+}
+
+CR4
+{
+Ken Birdwell
+}
+
+CR5
+{
+Steve Bond
+}
+
+CR6
+{
+Dario Casali
+}
+
+CR7
+{
+Greg Coomer
+}
+
+CR8
+{
+Wes Cumberland
+}
+
+CR9
+{
+John Guthrie
+}
+
+CR10
+{
+Mona Lisa Guthrie
+}
+
+CR11
+{
+Mike Harrington
+}
+
+CR12
+{
+Monica Harrington
+}
+
+CR13
+{
+Brett Johnson
+}
+
+CR14
+{
+Chuck Jones
+}
+
+CR15
+{
+Marc Laidlaw
+}
+
+CR16
+{
+Karen Laur
+}
+
+CR17
+{
+Randy Lundeen
+}
+
+CR18
+{
+Gabe Newell
+}
+
+CR19
+{
+Yatsze Mark
+}
+
+CR20
+{
+Lisa Mennet
+}
+
+CR21
+{
+Dave Riller
+}
+
+CR22
+{
+Jay Stelly
+}
+
+CR23
+{
+Harry Teasley 
+}
+
+CR24
+{
+Steve Theodore
+}
+
+CR25
+{
+Bill Van Buren
+}
+
+CR26
+{
+Douglas R. Wood
+}
+
+//INTRO TITLES
+// All centered for now
+$position -1 -1
+$effect 2
+// This is the final color
+$color 100 100 100
+// This is the highlight color
+$color2 240 110 0
+// This is the time it takes to fade each character
+$fadein 0.01
+// This is the amount of time the highlight lags behind the leading edge of the text
+$fxtime 0.25
+// How long to hold the message on the screen (after it scans out)
+$holdtime 3.5
+// How long it takes to fade out the message after holding
+$fadeout 1.5
+
+//NOTE - I HAVE CHANGED THESE FROM TITLES TO CREDITS.  THIS MAY OR MAY NOT WORK.  
+
+CR28
+{
+SUBJECT:
+Gordon Freeman
+Male, age 27
+}
+
+CR29
+{
+EDUCATION:
+Ph.D., MIT, Theoretical Physics
+}
+
+CR30
+{
+POSITION:
+Research Associate
+}
+
+CR31
+{
+ASSIGNMENT:
+Anomalous Materials Laboratory
+}
+
+CR32
+{
+CLEARANCE:
+Level 3
+}
+
+CR33
+{
+ADMINISTRATIVE SPONSOR:
+Classified
+}
+
+CR34
+{
+DISASTER RESPONSE PRIORITY:
+Discretionary
+}
+
+CLOSETITLE1
+{
+
+}
+
+//CHAPTER TITLES
+
+$position -1 0.4
+T0A0TITLE
+{
+
+}
+
+$position -1 0.65
+C0A0TITLE
+{
+BLACK MESA INBOUND
+}
+
+C0A1TITLE
+{
+ANOMALOUS MATERIALS
+}
+
+C1A1TITLE
+{
+UNFORESEEN CONSEQUENCES
+}
+
+C1A2TITLE
+{
+OFFICE COMPLEX
+}
+
+C1A3TITLE
+{
+"WE'VE GOT HOSTILES"
+}
+
+C1A4TITLE
+{
+SCREAMS AND WHISPERS
+}
+
+C2A1TITLE
+{
+FOOTFALL
+}
+
+C2A2TITLE
+{
+ON A RAIL
+}
+
+C2A3TITLE
+{
+ABANDONED SILO
+}
+
+C2A4TITLE1
+{
+CHUTES AND LADDERS
+}
+
+C2A4TITLE2
+{
+QUESTIONABLE ETHICS
+}
+
+C2A5TITLE
+{
+SURFACE TENSION
+}
+
+C3A1TITLE
+{
+"YOU'RE ON YOUR OWN"
+}
+
+C3A2TITLE
+{
+DOWN AND OUT
+}
+
+C4A1TITLE
+{
+XEN
+}
+
+C4A2TITLE
+{
+GONARCH'S LAIR
+}
+
+C4A3TITLE
+{
+NIHILANTH
+}
+
+C4A4TITLE
+{
+ENDGAME
+}
+
+
+// In-Game messages
+$position -1 0.65
+$effect 2
+// This is the final color
+$color 100 100 100
+// This is the highlight color
+$color2 240 110 0
+// This is the time it takes to fade each character
+$fadein 0.01
+// This is the amount of time the highlight lags behind the leading edge of the text
+$fxtime 0.25
+// How long to hold the message on the screen (after it scans out)
+$holdtime 2.0
+// How long it takes to fade out the message after holding
+$fadeout 0.5
+
+GAMESAVED
+{
+Saved...
+}
+
+//HAZARD COURSE TEXT
+
+// Test values -- JAY
+$position -1 0.65
+// Scan-out text effect
+$effect 2
+// This is the final color
+$color 100 100 100
+// This is the highlight color
+$color2 0 200 50
+// This is the time it takes to fade each character
+$fadein 0.005
+// This is the amount of time the highlight lags behind the leading edge of the text
+$fxtime 0.5
+// How long to hold the message on the screen (after it scans out)
+$holdtime 3.5
+// How long it takes to fade out the message after holding
+$fadeout 1.5
+
+$position -1 0.3
+HZBUTTON1
+{
+PRESS YOUR USE KEY TO PUSH A BUTTON
+}
+
+$position -1 0.65
+HZBUTTON2
+{
+PRESS YOUR USE KEY TO PUSH A BUTTON
+}
+
+HZMOVE
+{
+MOVE FORWARD BY PRESSING FORWARD KEY
+MOVE BACKWARD BY PRESSING BACKWARD KEY
+MOVE LEFT BY PRESSING MOVELEFT
+MOVE RIGHT BY PRESSING MOVERIGHT
+}
+
+HZJUMP
+{
+PRESS FORWARD KEY TO RUN FORWARD
+PRESS JUMP KEY TO JUMP
+}
+
+HZDUCK
+{
+PRESS FORWARD KEY TO RUN FORWARD
+PRESS DUCK KEY TO DUCK
+PRESS FORWARD + DUCK KEYS TOGETHER 
+TO MOVE IN STEALTH MODE
+}
+
+HZCOMBO
+{
+PRESS FORWARD KEY TO RUN FORWARD
+PRESS JUMP KEY TO JUMP
+PRESS DUCK KEY TO DUCK
+PRESS JUMP KEY TO JUMP
+}
+
+HZDUCKJUMP
+{
+PRESS FORWARD + JUMP TOGETHER,
+THEN THE DUCK KEY
+}
+
+HZLADDER
+{
+PRESS FORWARD KEY TO MOVE UP LADDERS
+PRESS BACKWARD KEY TO MOVE DOWN LADDERS
+}
+
+HZLJUMP
+{
+WHILE MOVING FORWARD,
+HOLD DOWN DUCK KEY--
+THEN PRESS JUMP
+}
+
+$position -1 0.3
+HZLMOD
+{
+BE SURE YOU PICKED UP THE LONG-JUMP MODULE
+AT THE BEGINNING OF THE OBSTACLE
+}
+
+$position -1 0.65
+HZMEDKIT
+{
+USE MED-KITS BY HOLDING DOWN THE USE KEY
+HOLD DOWN USE KEY UNTIL HEALTH IS
+AT 100 OR KIT IS DEPLETED
+}
+
+HZMOMENT
+{
+ACTIVATE WHEELS AND DIALS 
+BY HOLDING DOWN THE USE KEY
+HOLD USE KEY UNTIL BRIDGE IS IN POSITION
+}
+
+HZPUSH
+{
+PRESS FORWARD KEY TO MOVE AGAINST BOX
+KEEP PRESSING FORWARD TO PUSH BOX
+}
+
+HZPULL
+{
+PRESS USE + BACKWARD KEYS TOGETHER
+TO PULL BOX BACKWARD
+}
+
+HZCROWBAR
+{
+MOVE UP TO CROWBAR
+PRESS ATTACK1 KEY TO BREAK OBJECTS
+}
+ 
+HZLITEON
+{
+PRESS FLASHLIGHT KEY 
+TO TURN FLASHLIGHT ON
+}
+
+HZLITEOFF
+{
+PRESS FLASHLIGHT KEY AGAIN 
+TO TURN FLASHLIGHT OFF
+}
+
+HZWEAPON
+{
+MOVE UP TO WEAPON TO PICK IT UP
+}
+
+HZFIREWEAP
+{
+PRESS ATTACK1 KEY FOR PRIMARY ATTACK
+PRESS ATTACK2 KEY FOR ALTERNATE ATTACK
+PRESS RELOAD KEY TO RELOAD AT WILL
+}
+
+HZARMOR
+{
+PRESS AND HOLD YOUR USE KEY
+HOLD DOWN UNTIL SUIT ARMOR IS CHARGED
+OR CHARGER IS DEPLETED
+}
+
+HZSWIM
+{
+PRESS YOUR FORWARD KEY
+AIM WITH THE MOUSE AS YOU SWIM
+FIND AIR IF YOU BEGIN TO LOSE HEALTH
+WAIT IN THE AIR UNTIL HEALTH 
+RETURNS TO FORMER LEVEL
+}
+
+HZDAMAGE
+{
+CERTAIN TYPES OF DAMAGE WILL REGISTER 
+ON YOUR HEADS-UP DISPLAY.
+DIRECTION OF DAMAGE IS INDICATED BY RED 
+FLASHES IN THE CENTER OF YOUR SCREEN
+}
+
+HZHAZARD
+{
+RADIATION HAZARDS 
+ACTIVATE A GEIGER COUNTER
+}
+
+HZSCIENTIST
+{
+APPROACH SCIENTIST
+PRESS USE KEY TO RECEIVE HEALTH FROM SCIENTIST
+}
+
+HZBARNEY
+{
+APPROACH SECURITY GUARD
+PRESS YOUR USE KEY TO GET HIS HELP
+WALK TOWARD DOOR AND GUARD
+WILL ACTIVATE BUTTONS
+}
+
+HZTRAIN
+{
+PRESS USE KEY TO ENGAGE TRAIN
+PRESS FORWARD KEY TO ACCELERATE
+PRESS BACKWARD KEY TO DECELERATE
+PRESS USE KEY AGAIN TO DISENGAGE
+}
+
+HZDONE
+{
+CONGRATULATIONS!
+YOU HAVE COMPLETED 
+THE BLACK MESA HAZARD COURSE.
+COME BACK ANY TIME.
+)
+

@@ -231,6 +231,7 @@ declare function Xash3D(moduleArg?: {}): Promise<{
         forceLoadFile(obj: any): true | undefined;
         createLazyFile(parent: any, name: any, url: any, canRead: any, canWrite: any): any;
     };
+    HEAPU32: undefined;
     HEAP32: undefined;
     HEAP16: undefined;
     HEAP8: undefined;
@@ -238,5 +239,24 @@ declare function Xash3D(moduleArg?: {}): Promise<{
     getValue: (ptr: any, type?: string) => any;
     addFunction: (func: any, sig: any) => any;
     removeFunction: (index: any) => void;
+    setValue: (ptr: any, value: any, type?: string) => void;
+    writeArrayToMemory: (array: any, buffer: any) => void;
+    intArrayFromString: (stringy: any, dontAddNull: any, length: any) => any[];
+    writeSockaddr: (sa: any, family: any, addr: any, port: any, addrlen: any) => 0 | 5;
+    readSockaddr: (sa: any, salen: any) => {
+        errno: number;
+        family?: undefined;
+        addr?: undefined;
+        port?: undefined;
+    } | {
+        family: any;
+        addr: string;
+        port: any;
+        errno?: undefined;
+    };
+    AsciiToString: (ptr: any) => string | undefined;
+    _malloc: undefined;
+    addRunDependency: (id: any) => void;
+    removeRunDependency: (id: any) => void;
     start: () => void;
 }>;
