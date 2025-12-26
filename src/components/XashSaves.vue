@@ -74,11 +74,7 @@
   // Computed
 
   const correctedSaveLocation = computed(() => {
-    if (!customGameArg.value.includes(DEFAULT_GAME)) {
-      return customGameArg.value + '/save/';
-    } else {
-      return customGameArg.value;
-    }
+    return customGameArg.value + '/save/';
   });
 
   // Methods
