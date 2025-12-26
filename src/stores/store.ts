@@ -1,10 +1,9 @@
 import { computed, onMounted, ref } from 'vue';
 import { SaveManager } from '/@/services';
 import { defineStore } from 'pinia';
-import type { Enumify } from '/@/types.ts';
 import { type SaveEntry } from '/@/services/save-manager.ts';
 import { DEFAULT_GAME_DIR } from '/@/services/save-manager.ts';
-import { BASE_GAME_SETTINGS, GAME_SETTINGS } from '/@/services/xash-loader.ts';
+import { GAME_SETTINGS } from '/@/services/xash-loader.ts';
 
 export const useXashStore = defineStore(
   'xash',
