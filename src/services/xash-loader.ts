@@ -1,14 +1,13 @@
 import type { Xash3D } from 'xash3d-fwgs';
 import type { FilesWithPath } from '/@/utils/directory-open.ts';
-import type { Enumify } from '/@/types.ts';
-import type { GAME_SETTINGS } from '/@/stores/store.ts';
+import type { ConsoleCallback, Enumify } from '/@/types.ts';
 import { unzipSync } from 'fflate';
 import { getZip } from '/@/utils/zip-helpers';
 import SaveManager from '/@/services/save-manager.ts';
 import { delay } from '/@/utils/helpers.ts';
 import { DEFAULT_GAME_DIR } from '/@/services/save-manager.ts';
 
-// Xash Imports
+// Xash WASM Imports
 // @ts-ignore -- vite url imports
 import filesystemURL from 'xash3d-fwgs/filesystem_stdio.wasm?url';
 // @ts-ignore -- vite url imports
@@ -21,6 +20,12 @@ import webgl2URL from 'xash3d-fwgs/libref_webgl2.wasm?url';
 import HLClientURL from 'hlsdk-portable/cl_dlls/client_emscripten_wasm32.wasm?url';
 // @ts-ignore -- vite url imports
 import HLServerURL from 'hlsdk-portable/dlls/hl_emscripten_wasm32.so?url';
+// @ts-ignore -- vite url imports
+import CSMenuURL from 'cs16-client/cl_dll/menu_emscripten_wasm32.wasm?url';
+// @ts-ignore -- vite url imports
+import CSClientURL from 'cs16-client/cl_dll/client_emscripten_wasm32.wasm?url';
+// @ts-ignore -- vite url imports
+import CSServerURL from 'cs16-client/dlls/cs_emscripten_wasm32.so?url';
 
 const XASH_BASE_DIR = '/rodir/';
 
@@ -55,13 +60,105 @@ export interface PostLoadOptions {
   selectedGame: Enumify<typeof GAME_SETTINGS>;
   customGameArg: string;
   enableCheats?: boolean;
-  onSaveCallback?: () => void;
 }
 
+export interface FullStartOptions {
+  canvas: HTMLCanvasElement;
+  selectedGame: Enumify<typeof GAME_SETTINGS>;
+  selectedZip?: string;
+  selectedLocalFolder?: string;
+  launchOptions?: string;
+  fullScreen?: boolean;
+  enableConsole?: boolean;
+  enableCheats?: boolean;
+  onStartLoading?: () => void;
+  onEndLoading?: () => void;
+  onProgress?: (progress: LoadProgress) => void;
+  setCanvasLoading?: () => void;
+  setMaxLoadingAmount?: (amount: number) => void;
+}
+
+// Constants
+
+const XASH_LIBS = {
+  filesystem: filesystemURL,
+  xash: xashURL,
+  menu: menuURL,
+};
+
+// Perform these callbacks when the matching command is emitted from the xash console
+export const BASE_GAME_SETTINGS = {
+  consoleCallbacks: [
+    {
+      id: 'onExit',
+      match: 'exit',
+      callback: () => XashLoader.onExit(),
+    },
+    {
+      id: 'onQuit',
+      match: 'quit',
+      callback: () => XashLoader.onExit(),
+    },
+    {
+      id: 'onShutdown',
+      match: 'CL_Shutdown()',
+      callback: () => XashLoader.onExit(),
+    },
+    {
+      id: 'onTest',
+      match: 'test',
+      callback: () => console.log('test'),
+    },
+    {
+      id: 'onSave',
+      match: 'save',
+      callback: () => SaveManager.onSave(), // We set what this does after xash launches.
+    },
+  ] as ConsoleCallback[],
+};
+
+export const GAME_SETTINGS = {
+  HL: {
+    name: 'Half-Life',
+    launchArgs: [],
+    publicDir: 'hl/',
+    libraries: {
+      ...XASH_LIBS,
+      client: HLClientURL,
+      server: HLServerURL,
+    },
+    ...BASE_GAME_SETTINGS,
+  },
+  CS: {
+    name: 'Counter-Strike',
+    launchArgs: ['-game', 'cstrike', '+_vgui_menus', '0'],
+    publicDir: 'cs/',
+    libraries: {
+      ...XASH_LIBS,
+      menu: CSMenuURL,
+      client: CSClientURL,
+      server: CSServerURL,
+    },
+    ...BASE_GAME_SETTINGS,
+  },
+} as const;
+
+export const DEFAULT_GAME = 'valve';
+const DEFAULT_ARGS = ['+hud_scale', '2.5', '+volume', '0.05', '-ref', 'webgl2'];
+const WINDOW_ARGS = ['-windowed', ...DEFAULT_ARGS];
+const FULLSCREEN_ARGS = ['-fullscreen', ...DEFAULT_ARGS];
+const CONSOLE_ARG = '-console';
+
+const onBeforeUnload = (event: Event) => {
+  event.preventDefault();
+  event.returnValue = false;
+};
+
 class XashLoader {
-  /**
-   * Initializes a new Xash3D instance with the provided configuration
-   */
+  constructor() {
+    window.addEventListener('beforeunload', onBeforeUnload);
+  }
+
   public async initXash(options: GameLoaderOptions): Promise<Xash3D> {
     const { Xash3D } = await import('xash3d-fwgs');
 
@@ -98,9 +195,6 @@ class XashLoader {
     return xash;
   }
 
-  /**
-   * Processes and loads files into the Xash3D filesystem
-   */
   public async processFiles(
     filesArray: FilesWithPath[],
     xash: Xash3D,
@@ -161,13 +255,7 @@ class XashLoader {
     xash.em.FS.chdir(XASH_BASE_DIR);
   }
 
-  /**
-   * Processes and loads a zip file into the Xash3D filesystem
-   */
-  public async processZip(
-    zipBuffer: ArrayBuffer,
-    xash: Xash3D,
-  ): Promise<void> {
+  public async processZip(zipBuffer: ArrayBuffer, xash: Xash3D): Promise<void> {
     const zipData = new Uint8Array(zipBuffer);
     const files = unzipSync(zipData);
 
@@ -189,9 +277,6 @@ class XashLoader {
     xash.em.FS.chdir(XASH_BASE_DIR);
   }
 
-  /**
-   * Starts the Xash3D game with the provided files
-   */
   public async startWithFiles(
     options: GameLoaderOptions,
     filesArray: FilesWithPath[],
@@ -203,9 +288,6 @@ class XashLoader {
     return xash;
   }
 
-  /**
-   * Starts the Xash3D game with the provided zip file
-   */
   public async startWithZip(
     options: GameLoaderOptions,
     zipBuffer: ArrayBuffer,
@@ -216,9 +298,6 @@ class XashLoader {
     return xash;
   }
 
-  /**
-   * Downloads a zip file for the selected game
-   */
   public async downloadZip(
     selectedZip: string,
     publicDir: string,
@@ -228,9 +307,6 @@ class XashLoader {
     return await getZip(selectedZip, publicDir, onProgress!);
   }
 
-  /**
-   * Complete workflow: Start Xash3D with file array
-   */
   public async startGameWithFiles(
     options: StartGameOptions,
     filesArray: FilesWithPath[],
@@ -256,9 +332,6 @@ class XashLoader {
     return xash;
   }
 
-  /**
-   * Complete workflow: Start Xash3D with zip file
-   */
   public async startGameWithZip(
     options: StartGameOptions,
     zip?: ArrayBuffer,
@@ -275,7 +348,11 @@ class XashLoader {
     let zipBuffer = zip;
 
     if (!zipBuffer && selectedZip && publicDir) {
-      zipBuffer = await this.downloadZip(selectedZip, publicDir, onDownloadProgress);
+      zipBuffer = await this.downloadZip(
+        selectedZip,
+        publicDir,
+        onDownloadProgress,
+      );
     }
 
     if (!zipBuffer) {
@@ -295,18 +372,119 @@ class XashLoader {
     return xash;
   }
 
-  /**
-   * Post-load setup: Initialize save manager, transfer saves, enable cheats, setup callbacks
-   */
+  public async initConsoleCallbacks(
+    xash: Xash3D,
+    callbacks: Array<{ match: string; callback: () => void }>,
+  ): Promise<void> {
+    await Promise.all(
+      callbacks.map(async (callback) => {
+        const run = true;
+        while (run) {
+          try {
+            await xash.waitLog(callback.match, undefined, 1000);
+            callback.callback();
+          } catch (_error) {
+            // noop
+          }
+          await new Promise((resolve) => setTimeout(resolve, 500));
+        }
+      }),
+    );
+  }
+
+  private _buildLaunchArgs(options: FullStartOptions): string[] {
+    const baseArgs = options.fullScreen ? FULLSCREEN_ARGS : WINDOW_ARGS;
+    const args = [
+      ...options.selectedGame.launchArgs,
+      ...baseArgs,
+      ...(options.launchOptions?.split(' ').filter(Boolean) || []),
+    ];
+
+    if (options.enableConsole) {
+      args.push(CONSOLE_ARG);
+    }
+
+    if (options.selectedLocalFolder) {
+      args.push('-game');
+      args.push(options.selectedLocalFolder);
+    }
+
+    return args;
+  }
+
+  public async startGameFiles(
+    filesArray: FilesWithPath[],
+    options: FullStartOptions,
+  ): Promise<Xash3D> {
+    if (!options.canvas) {
+      throw new Error('Canvas is not available');
+    }
+
+    try {
+      const launchArgs = this._buildLaunchArgs(options);
+
+      const xash = await this.startGameWithFiles(
+        {
+          canvas: options.canvas,
+          selectedGame: options.selectedGame,
+          launchArgs,
+          setCanvasLoading: options.setCanvasLoading,
+          onStartLoading: () => {
+            options.onStartLoading?.();
+            options.setMaxLoadingAmount?.(filesArray.length);
+          },
+          onEndLoading: options.onEndLoading,
+          onProgress: options.onProgress,
+        },
+        filesArray,
+      );
+
+      return xash;
+    } catch (error) {
+      console.error('Failed to start Xash with files:', error);
+      options.onEndLoading?.();
+      throw error;
+    }
+  }
+
+  public async startGameZip(
+    zip: ArrayBuffer | undefined,
+    options: FullStartOptions,
+  ): Promise<Xash3D> {
+    if (!options.canvas) {
+      throw new Error('Canvas is not available');
+    }
+
+    try {
+      const launchArgs = this._buildLaunchArgs(options);
+
+      const xash = await this.startGameWithZip(
+        {
+          canvas: options.canvas,
+          selectedGame: options.selectedGame,
+          launchArgs,
+          onStartLoading: options.onStartLoading,
+          onEndLoading: options.onEndLoading,
+        },
+        zip,
+        options.selectedZip,
+        options.selectedGame.publicDir,
+        // @ts-ignore -- ignore type in this case.
+        options.onProgress!,
+      );
+
+      return xash;
+    } catch (error) {
+      console.error('Failed to start Xash with zip:', error);
+      options.onEndLoading?.();
+      throw error;
+    }
+  }
+
   public async onAfterLoad(options: PostLoadOptions): Promise<void> {
     await delay(500); // Wait for xash to fully load first
 
     SaveManager.init(options.xash);
-
-    // Set up save callback if provided
-    if (options.onSaveCallback) {
-      options.onSaveCallback();
-    }
 
     // Determine the game ID for save transfer
     const gameId =
@@ -319,6 +497,11 @@ class XashLoader {
     if (options.enableCheats) {
       options.xash.Cmd_ExecuteString('sv_cheats 1');
     }
+  }
+
+  public static onExit() {
+    window.removeEventListener('beforeunload', onBeforeUnload);
+    window.location.reload();
   }
 }
 

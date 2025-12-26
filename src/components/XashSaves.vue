@@ -9,7 +9,7 @@
         disabled
       />
       <div class="info-icon">
-        <img :src="InfoIcon" @click=""  alt="Info"/>
+        <img :src="InfoIcon" @click="openSaveHelp" alt="Info" />
       </div>
     </div>
   </div>
@@ -54,10 +54,11 @@
 
 <script setup lang="ts">
   import { computed, ref } from 'vue';
-  import { DEFAULT_GAME, useXashStore } from '/@/stores/store';
+  import { useXashStore } from '/@/stores/store';
   import { storeToRefs } from 'pinia';
   import { type IDBSaveGame } from '/@/services/save-manager.ts';
   import { SaveManager } from '/@/services';
+  import { DEFAULT_GAME } from '/@/services/xash-loader.ts';
   // @ts-ignore -- asset import
   import InfoIcon from '../assets/info-icon.png?url';
 
@@ -81,6 +82,13 @@
   });
 
   // Methods
+
+  const openSaveHelp = () => {
+    window.open(
+      'https://github.com/x8BitRain/webXash?tab=readme-ov-file#save-manager',
+      '_blank',
+    );
+  };
 
   const onSelectSave = (save: IDBSaveGame): void => {
     selectedSave.value = save;

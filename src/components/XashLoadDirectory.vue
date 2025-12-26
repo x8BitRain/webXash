@@ -47,6 +47,8 @@
   } from '/@/utils/directory-open.ts';
   import { computed, onMounted, ref } from 'vue';
   import { storeToRefs } from 'pinia';
+  import { XashLoader } from '/@/services';
+  import setCanvasLoading from '/@/utils/setCanvasLoading.ts';
 
   // Dependencies
 
@@ -57,8 +59,18 @@
   const files = ref<FilesWithPath[]>();
   const storedFolder = ref<string | null>(null);
 
-  const { selectedLocalFolder } = storeToRefs(store);
-  const { startXashFiles } = store;
+  const {
+    selectedLocalFolder,
+    selectedGame,
+    xashCanvas,
+    launchOptions,
+    fullScreen,
+    enableConsole,
+    enableCheats,
+    loadingProgress,
+    customGameArg,
+  } = storeToRefs(store);
+  const { onStartLoading, onEndLoading, refreshSavesList } = store;
 
   // Computed
 
@@ -90,15 +102,54 @@
   const start = async () => {
     if (!files.value) {
       await openFolder();
-      if (files.value) {
-        await startXashFiles(files.value);
-      } else {
+      if (!files.value) {
         alert(
           'There were no files found in this folder, was it moved or deleted?',
         );
+        return;
       }
-    } else {
-      await startXashFiles(files.value);
+    }
+
+    if (!xashCanvas.value) {
+      console.error('Canvas is not available');
+      return;
+    }
+
+    try {
+      const xash = await XashLoader.startGameFiles(files.value, {
+        canvas: xashCanvas.value,
+        selectedGame: selectedGame.value,
+        selectedLocalFolder: selectedLocalFolder.value,
+        launchOptions: launchOptions.value,
+        fullScreen: fullScreen.value,
+        enableConsole: enableConsole.value,
+        enableCheats: enableCheats.value,
+        setCanvasLoading,
+        onStartLoading: () => {
+          onStartLoading();
+          store.maxLoadingAmount = files.value!.length;
+        },
+        onEndLoading,
+        onProgress: (progress) => {
+          loadingProgress.value = progress.current;
+        },
+      });
+
+      await XashLoader.onAfterLoad({
+        xash,
+        selectedGame: selectedGame.value,
+        customGameArg: customGameArg.value,
+        enableCheats: enableCheats.value,
+      });
+
+      await XashLoader.initConsoleCallbacks(
+        xash,
+        selectedGame.value.consoleCallbacks,
+      );
+
+      await refreshSavesList();
+    } catch (error) {
+      console.error('Failed to start game:', error);
     }
   };
 

@@ -15,10 +15,11 @@
 </template>
 
 <script setup lang="ts">
-  import { GAME_SETTINGS, useXashStore } from '/@/stores/store';
+  import { useXashStore } from '/@/stores/store';
   import { storeToRefs } from 'pinia';
   import { type Enumify } from '/@/types.ts';
   import { onMounted } from 'vue';
+  import { GAME_SETTINGS } from '/@/services/xash-loader.ts';
 
   const store = useXashStore();
 

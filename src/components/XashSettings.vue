@@ -15,7 +15,8 @@
 
 <script setup lang="ts">
   import { storeToRefs } from 'pinia';
-  import { GAME_SETTINGS, useXashStore } from '/@/stores/store';
+  import { useXashStore } from '/@/stores/store';
+  import { GAME_SETTINGS } from '/@/services/xash-loader.ts';
   import XashZips from './XashZips.vue';
   import XashLoading from '/@/components/XashLoading.vue';
   import XashLaunchOptions from '/@/components/XashLaunchOptions.vue';

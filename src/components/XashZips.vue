@@ -26,12 +26,28 @@
 
   const store = useXashStore();
 
-  const { selectedZip, selectedGame, loadingProgress } = storeToRefs(store);
-  const { startXashZip } = store;
+  const {
+    selectedZip,
+    selectedGame,
+    xashCanvas,
+    launchOptions,
+    selectedLocalFolder,
+    fullScreen,
+    enableConsole,
+    enableCheats,
+    loadingProgress,
+    customGameArg,
+  } = storeToRefs(store);
+  const { onStartLoading, onEndLoading, refreshSavesList } = store;
 
   // Methods
 
   const start = async () => {
+    if (!xashCanvas.value) {
+      console.error('Canvas is not available');
+      return;
+    }
+
     setCanvasLoading();
     const zip = await XashLoader.downloadZip(
       selectedZip.value,
@@ -42,7 +58,44 @@
       alert('Selected game could not be loaded!');
       return;
     }
-    await startXashZip(zip);
+
+    try {
+      const xash = await XashLoader.startGameZip(zip, {
+        canvas: xashCanvas.value,
+        selectedGame: selectedGame.value,
+        selectedZip: selectedZip.value,
+        selectedLocalFolder: selectedLocalFolder.value,
+        launchOptions: launchOptions.value,
+        fullScreen: fullScreen.value,
+        enableConsole: enableConsole.value,
+        enableCheats: enableCheats.value,
+        onStartLoading,
+        onEndLoading,
+        onProgress: (progress) => {
+          if (typeof progress === 'number') {
+            loadingProgress.value = progress;
+          } else {
+            loadingProgress.value = progress.current;
+          }
+        },
+      });
+
+      await XashLoader.onAfterLoad({
+        xash,
+        selectedGame: selectedGame.value,
+        customGameArg: customGameArg.value,
+        enableCheats: enableCheats.value,
+      });
+
+      await XashLoader.initConsoleCallbacks(
+        xash,
+        selectedGame.value.consoleCallbacks,
+      );
+
+      await refreshSavesList();
+    } catch (error) {
+      console.error('Failed to start game:', error);
+    }
   };
 </script>
 

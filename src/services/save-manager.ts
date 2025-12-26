@@ -1,7 +1,5 @@
 import { createStore, get, set, values, type UseStore } from 'idb-keyval';
 import type { Xash3D } from 'xash3d-fwgs';
-import type { Enumify } from '/@/types.ts';
-import type { GAME_SETTINGS } from '/@/stores/store.ts';
 import { useXashStore } from '/@/stores/store.ts';
 
 // Constants
@@ -120,25 +118,22 @@ class SaveManager {
     this._xash = xash;
   }
 
-  public async onSave(
-    selectedGame: Enumify<typeof GAME_SETTINGS>,
-  ): Promise<void> {
+  public async onSave(): Promise<void> {
     const store = useXashStore();
+
     if (!this._xash) {
       console.warn('Xash not setup yet');
       return;
     }
-    console.log(this.FS);
+
+    console.info(this.FS);
 
     let gameId: string;
-    console.log(store.customGameArg === DEFAULT_GAME_DIR);
-    console.log(store.customGameArg, DEFAULT_GAME_DIR);
     if (store.customGameArg === DEFAULT_GAME_DIR) {
-      gameId = selectedGame.name;
+      gameId = store.selectedGame.name;
     } else {
       gameId = store.customGameArg;
     }
-    console.log(gameId);
 
     const saveFileNames = this._readSaveFiles();
     console.log(saveFileNames);
