@@ -349,7 +349,12 @@ export const useXashStore = defineStore(
       // @ts-ignore -- this works
       setupSaveCallback(selectedGame.value);
 
-      await SaveManager.transferSavesToGame();
+      // Determine the game ID for save transfer
+      const gameId = customGameArg.value === DEFAULT_GAME_DIR
+        ? selectedGame.value.name
+        : customGameArg.value;
+
+      await SaveManager.transferSavesToGame(gameId);
 
       if (enableCheats.value) {
         xash.Cmd_ExecuteString('sv_cheats 1');
@@ -400,6 +405,8 @@ export const useXashStore = defineStore(
       );
       if (customGameSearch && customGameSearch.length === 2) {
         return customGameSearch[1];
+      } else if (selectedLocalFolder.value) {
+        return selectedLocalFolder.value;
       } else {
         return DEFAULT_GAME_DIR;
       }

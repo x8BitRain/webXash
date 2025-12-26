@@ -3,7 +3,7 @@
     class="window no-resize"
     :name="storedFolder ? 'Game: ' + storedFolder : 'Open folder'"
   >
-    <div class="box">
+    <div>
       <div v-if="subfolders.length > 0" class="box inset local-folders">
         <p
           v-for="folder in subfolders"

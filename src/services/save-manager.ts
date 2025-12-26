@@ -40,10 +40,12 @@ class SaveManager {
 
   private _buildSaveLocation(saveName: string = ''): string {
     const store = useXashStore();
-    const saveLocation = (RODIR + store.customGameArg + '/save/' + saveName).replace(
-      '//',
-      '/',
-    );
+    const saveLocation = (
+      RODIR +
+      store.customGameArg +
+      '/save/' +
+      saveName
+    ).replace('//', '/');
     console.info('Writing save: ' + saveLocation);
     return saveLocation;
   }
@@ -94,7 +96,10 @@ class SaveManager {
     };
   }
 
-  private _upsertSave(saves: IDBSaveGame[], newSave: IDBSaveGame): IDBSaveGame[] {
+  private _upsertSave(
+    saves: IDBSaveGame[],
+    newSave: IDBSaveGame,
+  ): IDBSaveGame[] {
     const existingIndex = saves.findIndex((save) => save.name === newSave.name);
 
     if (existingIndex > -1) {
@@ -115,7 +120,9 @@ class SaveManager {
     this._xash = xash;
   }
 
-  public async onSave(selectedGame: Enumify<typeof GAME_SETTINGS>): Promise<void> {
+  public async onSave(
+    selectedGame: Enumify<typeof GAME_SETTINGS>,
+  ): Promise<void> {
     const store = useXashStore();
     if (!this._xash) {
       console.warn('Xash not setup yet');
@@ -127,9 +134,9 @@ class SaveManager {
     console.log(store.customGameArg === DEFAULT_GAME_DIR);
     console.log(store.customGameArg, DEFAULT_GAME_DIR);
     if (store.customGameArg === DEFAULT_GAME_DIR) {
-      gameId = selectedGame.name
+      gameId = selectedGame.name;
     } else {
-      gameId = store.customGameArg
+      gameId = store.customGameArg;
     }
     console.log(gameId);
 
@@ -155,6 +162,19 @@ class SaveManager {
 
   public async listSaves(): Promise<SaveEntry[]> {
     return await values<SaveEntry>(this._savesStore);
+  }
+
+  public async getSaveById(saveId: string): Promise<IDBSaveGame | null> {
+    const allSaves = await this.listSaves();
+
+    for (const saveEntry of allSaves) {
+      const foundSave = saveEntry.data.find((save) => save.id === saveId);
+      if (foundSave) {
+        return foundSave;
+      }
+    }
+
+    return null;
   }
 
   public async addCustomSaves(saves: File[]): Promise<void> {
@@ -186,33 +206,42 @@ class SaveManager {
     );
   }
 
-  public async removeCustomSave(save: IDBSaveGame): Promise<void> {
-    const existingCustomSaves = await get<SaveEntry>(
-      CUSTOM_SAVES_NAME,
-      this._savesStore,
-    );
+  public async removeSave(save: IDBSaveGame): Promise<void> {
+    const allSaves = await this.listSaves();
 
-    if (!existingCustomSaves?.data) return;
+    for (const saveEntry of allSaves) {
+      const index = saveEntry.data.findIndex(
+        (existingSave) => existingSave.id === save.id,
+      );
 
-    const index = existingCustomSaves.data.findIndex(
-      (existingSave) => existingSave.id === save.id,
-    );
-
-    if (index > -1) {
-      existingCustomSaves.data.splice(index, 1);
-      await set(CUSTOM_SAVES_NAME, existingCustomSaves, this._savesStore);
+      if (index > -1) {
+        saveEntry.data.splice(index, 1);
+        await set(saveEntry.gameId, saveEntry, this._savesStore);
+        console.info(`Removed save "${save.name}" from ${saveEntry.gameId}`);
+        return;
+      }
     }
+
+    console.warn(`Save with id ${save.id} not found in any category`);
   }
 
-  public async transferSavesToGame(): Promise<void> {
+  public async transferSavesToGame(gameId: string): Promise<void> {
     if (!this.FS) return;
 
     const allSaves = await this.listSaves();
-    const flattenedSaves = allSaves.flatMap((save) => save.data);
+    const matchingSaveEntry = allSaves.find((save) => save.gameId === gameId);
+    const customSaves = allSaves.find(
+      (save) => save.gameId === CUSTOM_SAVES_NAME,
+    ) ?? { data: [] };
+
+    if (!matchingSaveEntry) {
+      console.info(`No saves found for game: ${gameId}`);
+      return;
+    }
 
     this._ensureSaveFolderExists();
 
-    for (const save of flattenedSaves) {
+    for (const save of [...matchingSaveEntry.data, ...customSaves.data]) {
       if (save?.name && save?.data) {
         this.FS.writeFile(this._buildSaveLocation(save.name), save.data);
       }
