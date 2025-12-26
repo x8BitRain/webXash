@@ -22,17 +22,22 @@
   import { useXashStore } from '/@/stores/store';
   import { storeToRefs } from 'pinia';
   import setCanvasLoading from '/@/utils/setCanvasLoading.ts';
+  import { XashLoader } from '/@/services';
 
   const store = useXashStore();
 
-  const { selectedZip } = storeToRefs(store);
-  const { downloadZip, startXashZip } = store;
+  const { selectedZip, selectedGame, loadingProgress } = storeToRefs(store);
+  const { startXashZip } = store;
 
   // Methods
 
   const start = async () => {
     setCanvasLoading();
-    const zip = await downloadZip();
+    const zip = await XashLoader.downloadZip(
+      selectedZip.value,
+      selectedGame.value.publicDir,
+      (progress: number) => (loadingProgress.value = progress),
+    );
     if (!zip) {
       alert('Selected game could not be loaded!');
       return;

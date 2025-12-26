@@ -1,11 +1,5 @@
 <template>
   <div class="window no-resize" name="Save Location">
-    <div v-if="showSaveInfo">
-      <p>The saves added here will be transferred into the location below.</p>
-      <p>Saves made in-game are added to the saves list categorized by the name of the game the save was created in.</p>
-      <p>When launching a game or mod, only the corresponding saves in the list will be transferred into the game.</p>
-      <p>Saves added to the list manually will be added under xash-custom-saves and will be transferred into any games launched.</p>
-    </div>
     <div class="save-location-wrapper">
       <label for="save-location-input"></label>
       <input
@@ -15,7 +9,7 @@
         disabled
       />
       <div class="info-icon">
-        <img :src="InfoIcon" @click="showSaveInfo = !showSaveInfo" />
+        <img :src="InfoIcon" @click=""  alt="Info"/>
       </div>
     </div>
   </div>
@@ -37,7 +31,7 @@
         Download
       </button>
     </div>
-    <div v-if="saves && saves.length > 0" class="box inset">
+    <div v-if="saves && saves.length > 0" class="box inset saves-list__wrapper">
       <div v-for="save in saves" :key="save.gameId" class="saves-list">
         <b>{{ save.gameId }}</b>
         <div class="category-title-spacer"></div>
@@ -73,7 +67,6 @@
 
   // Data
 
-  const showSaveInfo = ref<boolean>(false);
   const selectedSave = ref<IDBSaveGame>();
   const uploadElement = ref<null | HTMLInputElement>();
 
@@ -175,6 +168,11 @@
     &__download {
       min-width: 3rem;
     }
+  }
+
+  .saves-list__wrapper {
+    max-height: 30rem;
+    overflow-y: auto;
   }
 
   .saves-list {
