@@ -58,7 +58,6 @@
   import { storeToRefs } from 'pinia';
   import { type IDBSaveGame } from '/@/services/save-manager.ts';
   import { SaveManager } from '/@/services';
-  import { DEFAULT_GAME } from '/@/services/xash-loader.ts';
   // @ts-ignore -- asset import
   import InfoIcon from '../assets/info-icon.png?url';
 
