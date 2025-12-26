@@ -23,13 +23,20 @@
 
   const store = useXashStore();
 
-  const { selectedGame } = storeToRefs(store);
+  const { selectedGame, selectedGameKey } = storeToRefs(store);
 
   // Methods
 
   const onSelectGame = (game: Enumify<typeof GAME_SETTINGS>): void => {
     window.scriptDir = game.publicDir;
-    selectedGame.value = game;
+    // Find the key for this game
+    const gameKey = Object.keys(GAME_SETTINGS).find(
+      (key) => GAME_SETTINGS[key as keyof typeof GAME_SETTINGS].name === game.name
+    ) as keyof typeof GAME_SETTINGS;
+
+    if (gameKey) {
+      selectedGameKey.value = gameKey;
+    }
   };
 
   // Hooks

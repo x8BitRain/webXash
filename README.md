@@ -86,6 +86,7 @@ If you launch a zipped folder of HL1 or play any of the zipped demos, the save s
 
 - Writing `quit` or `exit` in the console _should_ reload the page. If it doesn't, refresh manually.
 - Pressing Ctrl+W (crouch jumping) tries to close the page on most browsers, the only thing possible to prevent the tab from closing is to show a warning message where you can cancel the close. I recommend playing with fullscreen enabled because as Ctrl+W does not close the tab in fullscreen. 
+- Save manager is disabled when CS 1.6 is selected.
 
 ## FAQs
 

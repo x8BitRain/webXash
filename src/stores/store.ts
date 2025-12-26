@@ -11,7 +11,7 @@ export const useXashStore = defineStore(
   () => {
     // State
     const xashCanvas = ref<HTMLCanvasElement>();
-    const selectedGame = ref<Enumify<typeof GAME_SETTINGS>>(GAME_SETTINGS.HL);
+    const selectedGameKey = ref<keyof typeof GAME_SETTINGS>('HL');
     const selectedZip = ref('');
     const selectedLocalFolder = ref('');
     const saves = ref<Partial<SaveEntry>[]>();
@@ -54,6 +54,10 @@ export const useXashStore = defineStore(
 
     // Computed
 
+    const selectedGame = computed(() => {
+      return GAME_SETTINGS[selectedGameKey.value];
+    });
+
     const customGameArg = computed((): string => {
       // This regex should return two groups if it detects:
       // Group 0 (full match): -game blueshift
@@ -73,12 +77,6 @@ export const useXashStore = defineStore(
     // Hooks
 
     onMounted(async () => {
-      // Reapply console callback methods as they do not persist across refreshes.
-      selectedGame.value = {
-        ...selectedGame.value,
-        ...BASE_GAME_SETTINGS,
-      };
-
       // Getting Save Data from IDB
       await refreshSavesList();
     });
@@ -86,7 +84,7 @@ export const useXashStore = defineStore(
     return {
       // Data
       xashCanvas,
-      selectedGame,
+      selectedGameKey,
       selectedZip,
       selectedLocalFolder,
       saves,
@@ -99,6 +97,7 @@ export const useXashStore = defineStore(
       enableConsole,
       enableCheats,
       // Computed
+      selectedGame,
       customGameArg,
       // Methods
       onStartLoading,
@@ -109,7 +108,7 @@ export const useXashStore = defineStore(
   {
     persist: {
       pick: [
-        'selectedGame',
+        'selectedGameKey',
         'selectedZip',
         'selectedLocalFolder',
         'launchOptions',
