@@ -32,7 +32,9 @@ Click the `Open game folder` button and select your Half-Life or Counter-Strike 
    └───/file2...  
 ```
 
-The game should load immediately after allowing access to read the folder.
+After selecting the folder you'll see a list of game directories to choose from, this basically sets the launch argument `-game bshift`, for example. You can use the `-game` launch arg in the settings box to override this behavior.
+
+Selecting this folder will persist across visits if you allow permission for the site to access the files. WebXash does not write anything to the selected filesystem folder, it only reads game files and transfers them into a WASM filesystem that lives in memory in the browser during the play session.
 
 ### Loading from Zip files
 
@@ -65,6 +67,21 @@ If you are running a Half-Life mod or expansion like Opposing Force, the `valve`
 ```
 
 Before you select the folder you need to specify which game folder to launch using the `LAUNCH OPTIONS` window, in this example, I would run Blue Shift with `-game bshift`
+
+## Save manager
+
+The save manager captures saves when they're made in-game and stores them in indexedDB, then categorizes them by the game/mod name it was created under.
+
+Saves added via the save button will be categorized under `xash-custom-saves`.
+
+When you launch a game, the saves under the matching game/mod name will be transferred into the game for you to load. Saves under `xash-custom-saves` will also be transferred into any game/mod launched.
+
+The downlaod button will save the selected save to your local FS.
+
+### Using saves with zipped games.
+
+If you launch a zipped folder of HL1 or play any of the zipped demos, the save system still works, if you use, for example, `-game bshift` in the launch arguments, that will tell the save system to capture saves from the corresponding game name, so it would be `bshift/save`.
+
 
 ## FAQs
 
