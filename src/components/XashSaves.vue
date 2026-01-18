@@ -8,9 +8,7 @@
         type="text"
         disabled
       />
-      <div class="info-icon">
-        <img :src="InfoIcon" @click="openSaveHelp" alt="Info" />
-      </div>
+      <InfoIcon @click="openSaveHelp" />
     </div>
   </div>
   <div class="window" name="Saves List">
@@ -58,8 +56,7 @@
   import { storeToRefs } from 'pinia';
   import { type IDBSaveGame } from '/@/services/save-manager.ts';
   import { SaveManager } from '/@/services';
-  // @ts-ignore -- asset import
-  import InfoIcon from '../assets/info-icon.png?url';
+  import InfoIcon from './InfoIcon.vue';
 
   const store = useXashStore();
 
@@ -148,18 +145,6 @@
   .save-location-wrapper {
     display: flex;
     align-items: center;
-  }
-
-  .info-icon {
-    cursor: help;
-    img {
-      height: 16px;
-      border: none;
-      &:hover {
-        filter: brightness(0) saturate(100%) invert(56%) sepia(28%)
-          saturate(830%) hue-rotate(0deg) brightness(92%) contrast(87%);
-      }
-    }
   }
 
   .save-controls {

@@ -26,6 +26,8 @@ import CSMenuURL from 'cs16-client/cl_dll/menu_emscripten_wasm32.wasm?url';
 import CSClientURL from 'cs16-client/cl_dll/client_emscripten_wasm32.wasm?url';
 // @ts-ignore -- vite url imports
 import CSServerURL from 'cs16-client/dlls/cs_emscripten_wasm32.so?url';
+import { useXashStore } from '/@/stores/store.ts';
+import { Xash3DWebRTC } from '/@/services/xash-webrtc.ts';
 
 const XASH_BASE_DIR = '/rodir/';
 
@@ -159,10 +161,28 @@ class XashLoader {
     window.addEventListener('beforeunload', onBeforeUnload);
   }
 
+  private async _getXashInstance(): Promise<typeof Xash3D | typeof Xash3DWebRTC> {
+    const store = useXashStore();
+    if (store.multiplayerIP && /\d/.test(store.multiplayerIP)) {
+      const { Xash3DWebRTC } = await import('../services/xash-webrtc.ts');
+      return Xash3DWebRTC;
+    } else {
+      const { Xash3D } = await import('xash3d-fwgs');
+      return Xash3D;
+    }
+  }
+
   public async initXash(options: GameLoaderOptions): Promise<Xash3D> {
-    const { Xash3D } = await import('xash3d-fwgs');
+    const Xash3D = await this._getXashInstance();
+
+    if (!Xash3D) {
+      throw new Error('No Xash found.');
+    }
+
+    const store = useXashStore();
 
     const xash = new Xash3D({
+      multiplayerIP: store.multiplayerIP,
       module: {
         arguments: options.launchArgs,
         locateFile: (path: string) => {

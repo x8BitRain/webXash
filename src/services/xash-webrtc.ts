@@ -13,6 +13,7 @@ export class Xash3DWebRTC extends Xash3D {
 
   constructor(opts?: Xash3DOptionsMP) {
     super(opts);
+    this.multiplayerIP = opts?.multiplayerIP;
     this.net = new Net(this);
   }
 

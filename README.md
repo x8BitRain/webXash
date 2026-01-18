@@ -68,6 +68,22 @@ If you are running a Half-Life mod or expansion like Opposing Force, the `valve`
 
 Before you select the folder you need to specify which game folder to launch using the `LAUNCH OPTIONS` window, in this example, I would run Blue Shift with `-game bshift`
 
+## Multiplayer
+
+For multiplayer setups you need to use the following servers in docker containers from webxash3d-fwgs:
+
+For HL1DM use [hl-web-server](https://github.com/yohimik/webxash3d-fwgs/tree/main/docker/hl-web-server) 
+
+For CS 1.6 use [cs-web-server](https://github.com/yohimik/webxash3d-fwgs/tree/main/docker/cs-web-server)
+
+These servers work over the internet and over LAN.
+
+Once you have set up the server you can enter the server's <ins>***websocket***</ins> IP and port into the MULTIPLAYER IP input.
+
+The server's websocket address will be `<ip>:27016` by default.
+
+Launch the game and find it in the in-game menu under MULTIPLAYER -> LAN Game.
+
 ## Save manager
 
 The save manager captures saves when they're made in-game and stores them in indexedDB, then categorizes them by the game/mod name it was created under.
@@ -90,9 +106,9 @@ If you launch a zipped folder of HL1 or play any of the zipped demos, the save s
 
 ## FAQs
 
-#### Why doesn't multiplayer work?
+#### Why doesn't multiplayer internet server discovery work?
 
-If you want to play multiplayer you should use this version of [Half-Life: Deathmatch on dos.zone](https://dos.zone/hldm/) or look into using https://github.com/yohimik/goxash3d-fwgs. The WASM client needs to proxy its network requests via a websocket in order to do online multiplayer.
+If you want to play multiplayer over the internet like on Steam you should use this version of [Half-Life: Deathmatch on dos.zone](https://dos.zone/hldm/) for now as it's the closest thing to it. Currently you need to provide the IP address directly.
 
 #### Why doesn't my mod work?
 
