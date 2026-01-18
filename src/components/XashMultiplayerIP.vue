@@ -22,7 +22,7 @@
 
   const openIpHelp = () => {
     window.open(
-      'https://github.com/x8BitRain/webXash?tab=readme-ov-file#save-manager',
+      'https://github.com/x8BitRain/webXash?tab=readme-ov-file#multiplayer',
       '_blank',
     );
   };
