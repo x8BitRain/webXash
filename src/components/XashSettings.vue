@@ -6,6 +6,7 @@
       <XashLoadDirectory />
       <XashLoadZip />
       <XashLaunchOptions />
+      <XashMultiplayerIP />
       <XashSaves v-if="selectedGame.name === GAME_SETTINGS.HL.name" />
       <Attribution />
     </div>
@@ -25,6 +26,7 @@
   import XashLoadDirectory from '/@/components/XashLoadDirectory.vue';
   import XashGames from '/@/components/XashGames.vue';
   import XashSaves from '/@/components/XashSaves.vue';
+  import XashMultiplayerIP from '/@/components/XashMultiplayerIP.vue';
 
   const store = useXashStore();
   const { loading, selectedGame } = storeToRefs(store);

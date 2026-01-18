@@ -13,6 +13,7 @@ export const useXashStore = defineStore(
     const selectedGameKey = ref<keyof typeof GAME_SETTINGS>('HL');
     const selectedZip = ref('');
     const selectedLocalFolder = ref('');
+    const multiplayerIP = ref('');
     const saves = ref<Partial<SaveEntry>[]>();
     const loading = ref(false);
     const loadingProgress = ref(1);
@@ -86,6 +87,7 @@ export const useXashStore = defineStore(
       selectedGameKey,
       selectedZip,
       selectedLocalFolder,
+      multiplayerIP,
       saves,
       loading,
       loadingProgress,
@@ -109,6 +111,7 @@ export const useXashStore = defineStore(
       pick: [
         'selectedGameKey',
         'selectedZip',
+        'multiplayerIP',
         'selectedLocalFolder',
         'launchOptions',
         'fullScreen',
