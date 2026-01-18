@@ -19,6 +19,8 @@ import menuURL from 'xash3d-fwgs/libmenu.wasm?url';
 // @ts-ignore -- vite url imports
 import webgl2URL from 'xash3d-fwgs/libref_webgl2.wasm?url';
 // @ts-ignore -- vite url imports
+import extrasURL from 'xash3d-fwgs/extras.pk3?url';
+// @ts-ignore -- vite url imports
 import HLClientURL from 'hlsdk-portable/cl_dlls/client_emscripten_wasm32.wasm?url';
 // @ts-ignore -- vite url imports
 import HLServerURL from 'hlsdk-portable/dlls/hl_emscripten_wasm32.so?url';
@@ -303,7 +305,14 @@ class XashLoader {
     onProgress?: (progress: LoadProgress) => void,
   ): Promise<Xash3D> {
     const xash = await this.initXash(options);
-    await this.processFiles(filesArray, xash, onProgress);
+
+    // Load files and extras in parallel
+    const [, extrasBuffer] = await Promise.all([
+      this.processFiles(filesArray, xash, onProgress),
+      this.fetchExtras(),
+    ]);
+
+    await this.writeExtras(xash, extrasBuffer);
     xash.main();
     return xash;
   }
@@ -313,7 +322,14 @@ class XashLoader {
     zipBuffer: ArrayBuffer,
   ): Promise<Xash3D> {
     const xash = await this.initXash(options);
-    await this.processZip(zipBuffer, xash);
+
+    // Load zip and extras in parallel
+    const [, extrasBuffer] = await Promise.all([
+      this.processZip(zipBuffer, xash),
+      this.fetchExtras(),
+    ]);
+
+    await this.writeExtras(xash, extrasBuffer);
     xash.main();
     return xash;
   }
@@ -325,6 +341,19 @@ class XashLoader {
   ): Promise<ArrayBuffer | undefined> {
     if (!selectedZip) return;
     return await getZip(selectedZip, publicDir, onProgress!);
+  }
+
+  public async fetchExtras(): Promise<ArrayBuffer> {
+    const response = await fetch(extrasURL);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch extras.pk3: ${response.statusText}`);
+    }
+    return await response.arrayBuffer();
+  }
+
+  public async writeExtras(xash: Xash3D, extrasBuffer: ArrayBuffer): Promise<void> {
+    const extrasPath = XASH_BASE_DIR + 'extras.pk3';
+    xash.em.FS.writeFile(extrasPath, new Uint8Array(extrasBuffer));
   }
 
   public async startGameWithFiles(
@@ -367,12 +396,31 @@ class XashLoader {
 
     let zipBuffer = zip;
 
+    // Download zip and fetch extras in parallel if needed
     if (!zipBuffer && selectedZip && publicDir) {
-      zipBuffer = await this.downloadZip(
-        selectedZip,
-        publicDir,
-        onDownloadProgress,
-      );
+      const [downloadedZip, extrasBuffer] = await Promise.all([
+        this.downloadZip(selectedZip, publicDir, onDownloadProgress),
+        this.fetchExtras(),
+      ]);
+      zipBuffer = downloadedZip;
+
+      if (!zipBuffer) {
+        throw new Error('Failed to download or provide zip file');
+      }
+
+      // Init xash and process zip, then write extras
+      const xash = await this.initXash({
+        canvas: options.canvas,
+        selectedGame: options.selectedGame,
+        launchArgs: options.launchArgs,
+      });
+
+      await this.processZip(zipBuffer, xash);
+      await this.writeExtras(xash, extrasBuffer);
+      xash.main();
+
+      options.onEndLoading?.();
+      return xash;
     }
 
     if (!zipBuffer) {
