@@ -1,9 +1,11 @@
-import type { Xash3D } from 'xash3d-fwgs';
+import { type Xash3D } from 'xash3d-fwgs';
+import { type Xash3DWebRTC } from '/@/services/xash-webrtc.ts';
 import type { FilesWithPath } from '/@/utils/directory-open.ts';
 import type { ConsoleCallback, Enumify } from '/@/types.ts';
 import { unzipSync } from 'fflate';
 import { getZip } from '/@/utils/zip-helpers';
 import SaveManager from '/@/services/save-manager.ts';
+import { useXashStore } from '/@/stores/store.ts';
 import { delay } from '/@/utils/helpers.ts';
 import { DEFAULT_GAME_DIR } from '/@/services/save-manager.ts';
 
@@ -26,8 +28,6 @@ import CSMenuURL from 'cs16-client/cl_dll/menu_emscripten_wasm32.wasm?url';
 import CSClientURL from 'cs16-client/cl_dll/client_emscripten_wasm32.wasm?url';
 // @ts-ignore -- vite url imports
 import CSServerURL from 'cs16-client/dlls/cs_emscripten_wasm32.so?url';
-import { useXashStore } from '/@/stores/store.ts';
-import { Xash3DWebRTC } from '/@/services/xash-webrtc.ts';
 
 const XASH_BASE_DIR = '/rodir/';
 
