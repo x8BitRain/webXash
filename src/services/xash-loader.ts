@@ -163,7 +163,9 @@ class XashLoader {
     window.addEventListener('beforeunload', onBeforeUnload);
   }
 
-  private async _getXashInstance(): Promise<typeof Xash3D | typeof Xash3DWebRTC> {
+  private async _getXashInstance(): Promise<
+    typeof Xash3D | typeof Xash3DWebRTC
+  > {
     const store = useXashStore();
     if (store.multiplayerIP && /\d/.test(store.multiplayerIP)) {
       const { Xash3DWebRTC } = await import('../services/xash-webrtc.ts');
@@ -185,6 +187,7 @@ class XashLoader {
 
     const xash = new Xash3D({
       multiplayerIP: store.multiplayerIP,
+      onError: XashLoader.removeReloadListener,
       module: {
         arguments: options.launchArgs,
         locateFile: (path: string) => {
@@ -351,7 +354,10 @@ class XashLoader {
     return await response.arrayBuffer();
   }
 
-  public async writeExtras(xash: Xash3D, extrasBuffer: ArrayBuffer): Promise<void> {
+  public async writeExtras(
+    xash: Xash3D,
+    extrasBuffer: ArrayBuffer,
+  ): Promise<void> {
     const extrasPath = XASH_BASE_DIR + 'extras.pk3';
     xash.em.FS.writeFile(extrasPath, new Uint8Array(extrasBuffer));
   }
@@ -567,8 +573,12 @@ class XashLoader {
     }
   }
 
-  public static onExit() {
+  public static removeReloadListener() {
     window.removeEventListener('beforeunload', onBeforeUnload);
+  }
+
+  public static onExit() {
+    this.removeReloadListener();
     window.location.reload();
   }
 }

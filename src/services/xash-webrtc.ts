@@ -2,6 +2,7 @@ import { type Packet, Xash3D, type Xash3DOptions, Net } from 'xash3d-fwgs';
 
 export interface Xash3DOptionsMP extends Xash3DOptions {
   multiplayerIP?: string;
+  onError?: () => void;
 }
 
 export class Xash3DWebRTC extends Xash3D {
@@ -10,11 +11,13 @@ export class Xash3DWebRTC extends Xash3D {
   private ws?: WebSocket;
   private peer?: RTCPeerConnection;
   private multiplayerIP?: string;
+  private onError?: () => void;
 
   constructor(opts?: Xash3DOptionsMP) {
     super(opts);
     this.multiplayerIP = opts?.multiplayerIP;
     this.net = new Net(this);
+    this.onError = opts?.onError;
   }
 
   async init() {
@@ -74,18 +77,27 @@ export class Xash3DWebRTC extends Xash3D {
     };
   }
 
+  _onError(error: Event, ip: string) {
+    const ws = error.target as WebSocket;
+    if (ws && ws.readyState && ws.readyState === 3) {
+      const keepLoading = confirm(`Failed to connect to ${ip}, continue?`);
+      if (!keepLoading) {
+        this.onError?.();
+        window.location.reload();
+      }
+    }
+  }
+
   async connect() {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
     return new Promise((resolve) => {
       this.resolve = resolve;
-      let ip;
-      try {
-        ip = `ws://${this.multiplayerIP}/websocket`;
-        this.ws = new WebSocket(ip);
-      } catch (_e) {
-        alert(`Failed to connect to ${ip}`);
-        window.location.reload();
-      }
+      const ip = `ws://${this.multiplayerIP}/websocket`;
+      this.ws = new WebSocket(ip);
+      this.ws.onerror = (error: Event) => {
+        this._onError(error, ip);
+        resolve(undefined);
+      };
       const handler = async (e: MessageEvent) => {
         this.initConnection(stream);
         const parsed = JSON.parse(e.data);
