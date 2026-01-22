@@ -23,13 +23,13 @@ import extrasURL from 'xash3d-fwgs/extras.pk3?url';
 // @ts-ignore -- vite url imports
 import HLClientURL from 'hlsdk-portable/cl_dlls/client_emscripten_wasm32.wasm?url';
 // @ts-ignore -- vite url imports
-import HLServerURL from 'hlsdk-portable/dlls/hl_emscripten_wasm32.so?url';
+import HLServerURL from 'hlsdk-portable/dlls/hl_emscripten_wasm32.wasm?url';
 // @ts-ignore -- vite url imports
 import CSMenuURL from 'cs16-client/cl_dll/menu_emscripten_wasm32.wasm?url';
 // @ts-ignore -- vite url imports
 import CSClientURL from 'cs16-client/cl_dll/client_emscripten_wasm32.wasm?url';
 // @ts-ignore -- vite url imports
-import CSServerURL from 'cs16-client/dlls/cs_emscripten_wasm32.so?url';
+import CSServerURL from 'cs16-client/dlls/cs_emscripten_wasm32.wasm?url';
 
 const XASH_BASE_DIR = '/rodir/';
 
@@ -37,7 +37,7 @@ const DYNAMIC_LIBRARIES = [
   'filesystem_stdio.wasm',
   'libref_webgl2.wasm',
   'cl_dlls/menu_emscripten_wasm32.wasm',
-  'dlls/hl_emscripten_wasm32.so',
+  'dlls/hl_emscripten_wasm32.wasm',
   'cl_dlls/client_emscripten_wasm32.wasm',
 ];
 
@@ -184,7 +184,7 @@ class XashLoader {
     }
 
     const store = useXashStore();
-
+    
     const xash = new Xash3D({
       multiplayerIP: store.multiplayerIP,
       onError: XashLoader.removeReloadListener,
@@ -198,7 +198,7 @@ class XashLoader {
               return filesystemURL;
             case 'cl_dlls/menu_emscripten_wasm32.wasm':
               return menuURL;
-            case 'dlls/hl_emscripten_wasm32.so':
+            case 'dlls/hl_emscripten_wasm32.wasm':
               return HLServerURL;
             case 'cl_dlls/client_emscripten_wasm32.wasm':
               return HLClientURL;
