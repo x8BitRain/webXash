@@ -38,6 +38,10 @@ const DYNAMIC_LIBRARIES = [
   'libref_webgl2.wasm',
   'cl_dlls/menu_emscripten_wasm32.wasm',
   'dlls/hl_emscripten_wasm32.wasm',
+  // bshift fix
+  'dlls/bshift_emscripten_wasm32.wasm',
+  // opfor fix
+  'dlls/opfor_emscripten_wasm32.wasm',
   'cl_dlls/client_emscripten_wasm32.wasm',
 ];
 
@@ -184,13 +188,14 @@ class XashLoader {
     }
 
     const store = useXashStore();
-    
+
     const xash = new Xash3D({
       multiplayerIP: store.multiplayerIP,
       onError: XashLoader.removeReloadListener,
       module: {
         arguments: options.launchArgs,
         locateFile: (path: string) => {
+          console.log(path);
           switch (path) {
             case 'xash.wasm':
               return xashURL;
@@ -199,6 +204,12 @@ class XashLoader {
             case 'cl_dlls/menu_emscripten_wasm32.wasm':
               return menuURL;
             case 'dlls/hl_emscripten_wasm32.wasm':
+              return HLServerURL;
+            // bshift fix
+            case 'dlls/bshift_emscripten_wasm32.wasm':
+              return HLServerURL;
+            //opfor fix
+            case 'dlls/opfor_emscripten_wasm32.wasm':
               return HLServerURL;
             case 'cl_dlls/client_emscripten_wasm32.wasm':
               return HLClientURL;
