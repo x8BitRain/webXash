@@ -167,10 +167,6 @@ const onBeforeUnload = (event: Event) => {
 };
 
 class XashLoader {
-  constructor() {
-    window.addEventListener('beforeunload', onBeforeUnload);
-  }
-
   private async _getXashInstance(): Promise<
     typeof Xash3D | typeof Xash3DWebRTC
   > {
@@ -576,6 +572,8 @@ class XashLoader {
   }
 
   public async onAfterLoad(options: PostLoadOptions): Promise<void> {
+    window.addEventListener('beforeunload', onBeforeUnload);
+
     await delay(500); // Wait for xash to fully load first
 
     SaveManager.init(options.xash);
