@@ -36,13 +36,17 @@ const XASH_BASE_DIR = '/rodir/';
 const DYNAMIC_LIBRARIES = [
   'filesystem_stdio.wasm',
   'libref_webgl2.wasm',
+  'cl_dlls/client_emscripten_wasm32.wasm',
+  // hl
   'cl_dlls/menu_emscripten_wasm32.wasm',
   'dlls/hl_emscripten_wasm32.wasm',
-  // bshift fix
+  // bshift
   'dlls/bshift_emscripten_wasm32.wasm',
-  // opfor fix
+  // opfor
   'dlls/opfor_emscripten_wasm32.wasm',
-  'cl_dlls/client_emscripten_wasm32.wasm',
+  // cs
+  'dlls/cs_emscripten_wasm32.wasm',
+  'dlls/mp_emscripten_wasm32.wasm',
 ];
 
 export interface GameLoaderOptions {
@@ -213,6 +217,11 @@ class XashLoader {
               return HLServerURL;
             case 'cl_dlls/client_emscripten_wasm32.wasm':
               return HLClientURL;
+            // cs
+            case 'dlls/cs_emscripten_wasm32.wasm':
+              return CSServerURL;
+            case 'dlls/mp_emscripten_wasm32.wasm':
+              return CSServerURL;
             case 'libref_webgl2.wasm':
               return webgl2URL;
             // Check this (not supported yet)
