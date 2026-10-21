@@ -67,6 +67,7 @@
     fullScreen,
     enableConsole,
     enableCheats,
+    volume,
     loadingProgress,
     customGameArg,
   } = storeToRefs(store);
@@ -121,6 +122,7 @@
         selectedGame: selectedGame.value,
         selectedLocalFolder: selectedLocalFolder.value,
         launchOptions: launchOptions.value,
+        volume: volume.value,
         fullScreen: fullScreen.value,
         enableConsole: enableConsole.value,
         enableCheats: enableCheats.value,

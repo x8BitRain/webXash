@@ -36,14 +36,22 @@ class SaveManager {
     return this._xash?.em.FS;
   }
 
+  // The same game can be started from a demo package or from a folder in the
+  // player's own installation. Both have to end up in the same save list, so
+  // the id is the game folder without its trailing slash.
+  private _getGameId(): string {
+    const store = useXashStore();
+    const folder = store.customGameArg.replace(/\/+$/, '');
+    if (folder === DEFAULT_GAME_DIR.replace(/\/+$/, '')) {
+      return store.selectedGame.name;
+    }
+    return folder;
+  }
+
   private _buildSaveLocation(saveName: string = ''): string {
     const store = useXashStore();
-    const saveLocation = (
-      RODIR +
-      store.customGameArg +
-      '/save/' +
-      saveName
-    ).replace('//', '/');
+    const folder = store.customGameArg.replace(/\/+$/, '');
+    const saveLocation = `${RODIR}${folder}/save/${saveName}`;
     console.info('Writing save: ' + saveLocation);
     return saveLocation;
   }
@@ -57,7 +65,7 @@ class SaveManager {
     } catch (error) {
       // @ts-ignore -- errno 44 usually means the folder doesn't exist.
       if (error?.errno === 44) {
-        this.FS.mkdir(saveLocation);
+        this.FS.mkdirTree(saveLocation);
       }
     }
   }
@@ -73,7 +81,16 @@ class SaveManager {
   private _readSaveFiles(): string[] {
     if (!this.FS) return [];
 
-    const rawSaves = this.FS.readdir(this._buildSaveLocation());
+    // The folder only exists once the game has written a save into it.
+    this._ensureSaveFolderExists();
+
+    let rawSaves: string[];
+    try {
+      rawSaves = this.FS.readdir(this._buildSaveLocation());
+    } catch (_error) {
+      return [];
+    }
+
     return rawSaves.filter((fileName: string) =>
       fileName.endsWith('.sav'),
     ) as string[];
@@ -119,33 +136,28 @@ class SaveManager {
   }
 
   public async onSave(): Promise<void> {
-    const store = useXashStore();
-
     if (!this._xash) {
       console.warn('Xash not setup yet');
       return;
     }
 
-    console.info(this.FS);
-
-    let gameId: string;
-    if (store.customGameArg === DEFAULT_GAME_DIR) {
-      gameId = store.selectedGame.name;
-    } else {
-      gameId = store.customGameArg;
-    }
+    const gameId = this._getGameId();
 
     const saveFileNames = this._readSaveFiles();
-    console.log(saveFileNames);
     if (saveFileNames.length === 0) return;
 
     const existingEntry = await this._getSaveEntry(gameId);
     let saves: IDBSaveGame[] = existingEntry?.data ?? [];
 
     for (const fileName of saveFileNames) {
-      const saveGame = this._createSaveGame(fileName);
-      if (saveGame) {
-        saves = this._upsertSave(saves, saveGame);
+      try {
+        const saveGame = this._createSaveGame(fileName);
+        if (saveGame) {
+          saves = this._upsertSave(saves, saveGame);
+        }
+      } catch (_error) {
+        // The game was still writing the file, it will be picked up next time.
+        console.warn(`Could not read save file "${fileName}"`);
       }
     }
 
@@ -220,17 +232,18 @@ class SaveManager {
     console.warn(`Save with id ${save.id} not found in any category`);
   }
 
-  public async transferSavesToGame(gameId: string): Promise<void> {
+  public async transferSavesToGame(gameId?: string): Promise<void> {
     if (!this.FS) return;
 
+    const id = gameId ?? this._getGameId();
     const allSaves = await this.listSaves();
-    const matchingSaveEntry = allSaves.find((save) => save.gameId === gameId);
+    const matchingSaveEntry = allSaves.find((save) => save.gameId === id);
     const customSaves = allSaves.find(
       (save) => save.gameId === CUSTOM_SAVES_NAME,
     ) ?? { data: [] };
 
     if (!matchingSaveEntry) {
-      console.info(`No saves found for game: ${gameId}`);
+      console.info(`No saves found for game: ${id}`);
       return;
     }
 

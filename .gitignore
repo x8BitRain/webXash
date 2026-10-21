@@ -15,6 +15,9 @@ dist-ssr
 *.local
 *.tsbuildinfo
 
+# Local machine specific npm configuration
+.npmrc
+
 # Build files
 public/*/*.wasm
 public/*/*.so

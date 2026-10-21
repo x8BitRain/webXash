@@ -7,7 +7,6 @@ import { getZip } from '/@/utils/zip-helpers';
 import SaveManager from '/@/services/save-manager.ts';
 import { useXashStore } from '/@/stores/store.ts';
 import { delay } from '/@/utils/helpers.ts';
-import { DEFAULT_GAME_DIR } from '/@/services/save-manager.ts';
 
 // Xash WASM Imports
 // @ts-ignore -- vite url imports
@@ -72,6 +71,7 @@ export interface PostLoadOptions {
   selectedGame: Enumify<typeof GAME_SETTINGS>;
   customGameArg: string;
   enableCheats?: boolean;
+  bots?: number;
 }
 
 export interface FullStartOptions {
@@ -80,6 +80,9 @@ export interface FullStartOptions {
   selectedZip?: string;
   selectedLocalFolder?: string;
   launchOptions?: string;
+  startMap?: string;
+  bots?: number;
+  volume?: number;
   fullScreen?: boolean;
   enableConsole?: boolean;
   enableCheats?: boolean;
@@ -123,8 +126,9 @@ export const BASE_GAME_SETTINGS = {
     },
     {
       id: 'onSave',
-      match: 'save',
-      callback: () => SaveManager.onSave(), // We set what this does after xash launches.
+      // The engine prints this right before it writes the save file.
+      match: 'Saving game to',
+      callback: () => SaveManager.onSave(),
     },
   ] as ConsoleCallback[],
 };
@@ -156,10 +160,42 @@ export const GAME_SETTINGS = {
 } as const;
 
 export const DEFAULT_GAME = 'valve';
-const DEFAULT_ARGS = ['+hud_scale', '2.5', '+volume', '0.05', '-ref', 'webgl2'];
+const DEFAULT_ARGS = ['+hud_scale', '2.5', '-ref', 'webgl2'];
 const WINDOW_ARGS = ['-windowed', ...DEFAULT_ARGS];
 const FULLSCREEN_ARGS = ['-fullscreen', ...DEFAULT_ARGS];
 const CONSOLE_ARG = '-console';
+// Master volume the game falls back to when the user did not pick one.
+const DEFAULT_VOLUME = 0.8;
+
+// The bundled demo packages were trimmed upstream: they reference assets that
+// they do not ship, so the engine logs "Could not load sound/model ..." for
+// every one of them. Each demo has a small companion archive with the rest.
+const demoAssetPackName = (zipName: string) =>
+  zipName.replace(/\.zip$/i, '-assets.zip');
+
+// Commands this Half-Life build does not know. The bundled packages ship
+// config files that were written for Counter-Strike, so the engine reports
+// every one of these lines as "Unknown command" on startup.
+const UNKNOWN_COMMANDS = [
+  '_windowed_mouse',
+  'cl_predict',
+  'gl_overbright_studio',
+  's_distance',
+  's_occfactor',
+  's_refdelay',
+  's_refgain',
+  's_verbwet',
+  'seta',
+  'sv_language',
+];
+
+// The engine looks for these localization tables inside the game folder and
+// complains when they are missing. The demo packages do not ship them.
+const LOCALIZATION_TABLES = [
+  'gameui_english.txt',
+  'mainui_english.txt',
+  'valve_english.txt',
+];
 
 const onBeforeUnload = (event: Event) => {
   event.preventDefault();
@@ -318,6 +354,63 @@ class XashLoader {
     xash.em.FS.chdir(XASH_BASE_DIR);
   }
 
+  // Restores the assets a trimmed demo package references but does not ship.
+  private async applyDemoAssetPack(
+    xash: Xash3D,
+    selectedZip: string,
+    publicDir: string,
+  ): Promise<void> {
+    try {
+      const response = await fetch(
+        `./${publicDir}${demoAssetPackName(selectedZip)}`,
+      );
+      if (!response.ok) {
+        return;
+      }
+      await this.processZip(await response.arrayBuffer(), xash);
+    } catch (_error) {
+      // The package has no companion archive, nothing to restore.
+    }
+  }
+
+  // The demo packages ship a Counter-Strike config, and no localization
+  // tables. Both make the engine log complaints on every start.
+  private sanitizeGameConfig(xash: Xash3D): void {
+    for (const name of ['config.cfg', 'valve.rc', 'default.cfg', 'language.cfg']) {
+      const path = `${XASH_BASE_DIR}valve/${name}`;
+      try {
+        const contents = xash.em.FS.readFile(path, { encoding: 'utf8' });
+        const cleaned = contents
+          .split('\n')
+          .filter((line: string) => {
+            const command = line.trim().split(/\s+/)[0]?.toLowerCase();
+            return !command || !UNKNOWN_COMMANDS.includes(command);
+          })
+          .join('\n');
+        if (cleaned !== contents) {
+          xash.em.FS.writeFile(path, cleaned);
+        }
+      } catch (_error) {
+        // The package does not have that file, nothing to clean.
+      }
+    }
+
+    const resourceDir = `${XASH_BASE_DIR}valve/resource`;
+    try {
+      xash.em.FS.mkdirTree(resourceDir);
+    } catch (_error) {
+      // Already there.
+    }
+    for (const table of LOCALIZATION_TABLES) {
+      const path = `${resourceDir}/${table}`;
+      try {
+        xash.em.FS.readFile(path);
+      } catch (_error) {
+        xash.em.FS.writeFile(path, new Uint8Array([10]));
+      }
+    }
+  }
+
   public async startWithFiles(
     options: GameLoaderOptions,
     filesArray: FilesWithPath[],
@@ -339,6 +432,8 @@ class XashLoader {
   public async startWithZip(
     options: GameLoaderOptions,
     zipBuffer: ArrayBuffer,
+    selectedZip?: string,
+    publicDir?: string,
   ): Promise<Xash3D> {
     const xash = await this.initXash(options);
 
@@ -348,7 +443,12 @@ class XashLoader {
       this.fetchExtras(),
     ]);
 
+    if (selectedZip && publicDir) {
+      await this.applyDemoAssetPack(xash, selectedZip, publicDir);
+    }
+
     await this.writeExtras(xash, extrasBuffer);
+    this.sanitizeGameConfig(xash);
     xash.main();
     return xash;
   }
@@ -438,7 +538,9 @@ class XashLoader {
       });
 
       await this.processZip(zipBuffer, xash);
+      await this.applyDemoAssetPack(xash, selectedZip, publicDir);
       await this.writeExtras(xash, extrasBuffer);
+      this.sanitizeGameConfig(xash);
       xash.main();
 
       options.onEndLoading?.();
@@ -456,6 +558,8 @@ class XashLoader {
         launchArgs: options.launchArgs,
       },
       zipBuffer,
+      selectedZip,
+      publicDir,
     );
 
     options.onEndLoading?.();
@@ -484,9 +588,20 @@ class XashLoader {
 
   private _buildLaunchArgs(options: FullStartOptions): string[] {
     const baseArgs = options.fullScreen ? FULLSCREEN_ARGS : WINDOW_ARGS;
+    const bots = options.bots ?? 0;
+    const volume = Math.min(1, Math.max(0, options.volume ?? DEFAULT_VOLUME));
     const args = [
       ...options.selectedGame.launchArgs,
       ...baseArgs,
+      // The sound volume has to be set before the engine opens its audio
+      // device, otherwise the engine keeps the level it was built with.
+      '+volume',
+      String(volume),
+      // Bots need free player slots, and the slot count is only picked up
+      // when the server (re)starts, so this has to precede the map.
+      ...(bots > 0 ? ['+maxplayers', String(bots + 1)] : []),
+      // Requested before the user options so a custom "+map" still wins.
+      ...(options.startMap ? ['+map', options.startMap] : []),
       ...(options.launchOptions?.split(' ').filter(Boolean) || []),
     ];
 
@@ -578,16 +693,34 @@ class XashLoader {
 
     SaveManager.init(options.xash);
 
-    // Determine the game ID for save transfer
-    const gameId =
-      options.customGameArg === DEFAULT_GAME_DIR
-        ? options.selectedGame.name
-        : options.customGameArg;
-
-    await SaveManager.transferSavesToGame(gameId);
+    // The save manager works out which game the saves belong to, so that a
+    // demo and a folder with the same game share one save list.
+    await SaveManager.transferSavesToGame();
 
     if (options.enableCheats) {
       options.xash.Cmd_ExecuteString('sv_cheats 1');
+    }
+
+    if (options.bots) {
+      await this._spawnBots(options.xash, options.bots);
+    }
+  }
+
+  /**
+   * Populates the local server with bots.
+   *
+   * The bot commands are provided by the game library and only become
+   * available once the server is up, so the request has to wait for it.
+   */
+  private async _spawnBots(xash: Xash3D, count: number): Promise<void> {
+    await Promise.race([
+      xash.waitLog('player server started', undefined, 30000).catch(() => undefined),
+      delay(20000),
+    ]);
+
+    for (let i = 0; i < count; i++) {
+      xash.Cmd_ExecuteString('addbot');
+      await delay(500);
     }
   }
 
